@@ -1,4 +1,4 @@
-using TaskFlow.Domain.Common;
+﻿using TaskFlow.Domain.Common;
 namespace TaskFlow.Domain.Entities;
 public class Project : AuditableEntity
 {
@@ -10,5 +10,26 @@ public class Project : AuditableEntity
     {
         Name = name;
         Description = description;
+        CreatedAt = DateTime.UtcNow;
+    }
+
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void PartialUpdate(string? name, string? description)
+    {
+        if (name != null && !string.IsNullOrWhiteSpace(name))
+        {
+            Name = name;
+        }
+        if (description != null)
+        {
+            Description = description == "" ? null : description;
+        }
+        UpdatedAt = DateTime.UtcNow;
     }
 }

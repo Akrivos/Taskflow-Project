@@ -17,6 +17,13 @@ public class ProjectsController : ControllerBase
     public async Task<IActionResult> Get() =>
         Ok(await _mediator.Send(new GetProjectsQuery()));
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var project = await _mediator.Send(new GetProjectQuery(id));
+        return Ok(project);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProjectCommand cmd)
     {
@@ -24,10 +31,19 @@ public class ProjectsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id }, null);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProjectCommand cmd)
     {
-        var project = await _mediator.Send(new GetProjectQuery(id));
-        return Ok(project);
+        cmd.Id = id;
+        await _mediator.Send(cmd);
+        return NoContent();
+    }
+
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchProjectCommand cmd)
+    {
+        cmd.Id = id;
+        await _mediator.Send(cmd);
+        return NoContent();
     }
 }
