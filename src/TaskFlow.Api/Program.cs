@@ -32,6 +32,7 @@ builder.Host.UseSerilog();
 // Expose HttpContext via DI so services can access user info, etc.
 //
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 //
 // -------------------- Layer registration --------------------
