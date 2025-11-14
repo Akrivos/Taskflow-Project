@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using TaskFlow.Application.Common.Exceptions;
 
 namespace TaskFlow.Application.Common.Behaviors;
 
@@ -27,7 +28,16 @@ public sealed class ValidationBehavior<TRequest, TResponse>
                                   .ToList();
 
             if (failures.Count != 0)
-                throw new ValidationException(failures);
+            {
+                var errorDict = failures
+                   .GroupBy(f => f.PropertyName)
+                   .ToDictionary(
+                       g => g.Key,
+                       g => g.Select(f => f.ErrorMessage).ToArray()
+                   );
+                throw new AppValidationException(errorDict);
+            }
+                
         }
 
         return await next();

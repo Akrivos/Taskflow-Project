@@ -15,10 +15,10 @@ public static class DependencyInjection
         // MediatR (v12/13 style)
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
 
-        // FluentValidation DI extensions
+        // 🔹 Αυτό σκανάρει ΟΛΑ τα classes που κληρονομούν από AbstractValidator<T>
         services.AddValidatorsFromAssembly(assembly);
 
-        // Pipeline behaviors (validation, logging κλπ. – εδώ μόνο validation)
+        // 🔹 Εγγραφή του validation behavior στο MediatR pipeline
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         return services;
