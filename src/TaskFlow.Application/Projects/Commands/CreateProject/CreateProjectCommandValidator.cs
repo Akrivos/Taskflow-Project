@@ -7,9 +7,10 @@ public sealed class CreateProjectCommandValidator : AbstractValidator<CreateProj
     public CreateProjectCommandValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Το όνομα είναι υποχρεωτικό.")
-            .MaximumLength(200).WithMessage("Μέγιστο 200 χαρακτήρες.");
+            .NotEmpty().WithMessage("Name is required!")
+            .MaximumLength(200).WithMessage("The maximum length of chars are 200!");
         RuleFor(x => x.Description)
+            .NotEmpty()
             .MaximumLength(2000);
     }
 }

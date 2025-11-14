@@ -1,5 +1,4 @@
-﻿# docker-compose.yml
-services:
+﻿services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -7,12 +6,13 @@ services:
       ACCEPT_EULA: "Y"
     ports:
       - "11433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
     healthcheck:
-      # Έλεγχος σύνδεσης ΜΕΣΑ στο container
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Your_password123", "-Q", "select 1"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/1433'"]
       interval: 10s
       timeout: 3s
-      retries: 20
+      retries: 30
     restart: unless-stopped
 
   rabbitmq:
@@ -50,12 +50,14 @@ services:
       - RabbitMQ__HostName=rabbitmq
       - RabbitMQ__UserName=guest
       - RabbitMQ__Password=guest
-      - Azure__BlobConnectionString=UseDevelopmentStorage=true
+      - Azure__BlobConnectionString=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      azurite:
+        condition: service_started
     restart: unless-stopped
 
   notifier:
@@ -71,3 +73,6 @@ services:
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  sql_data:

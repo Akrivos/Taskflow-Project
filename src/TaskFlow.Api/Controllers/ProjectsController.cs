@@ -27,8 +27,7 @@ public class ProjectsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var list = await _mediator.Send(new GetProjectsQuery());
-        var match = list.FirstOrDefault(p => p.Id == id);
-        return match is null ? NotFound() : Ok(match);
+        var project = await _mediator.Send(new GetProjectQuery(id));
+        return Ok(project);
     }
 }

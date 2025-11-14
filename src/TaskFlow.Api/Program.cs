@@ -12,6 +12,7 @@ using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Application;
 
 using FluentValidation.AspNetCore;
+using TaskFlow.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -121,10 +122,13 @@ builder.Services.AddAuthorization(options =>
 // Add controllers, enable automatic validation via FluentValidation,
 // and configure Swagger with Bearer auth support.
 //
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // Automatically run FluentValidation validators on incoming DTOs.
-builder.Services.AddFluentValidationAutoValidation();
+//builder.Services.AddFluentValidationAutoValidation();
 
 // Swagger/OpenAPI so we can test the API easily (and include JWT auth).
 builder.Services.AddEndpointsApiExplorer();
@@ -162,8 +166,15 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddHostedService<TaskFlow.Api.Workers.RabbitMqTaskCreatedConsumer>();
 
 //
+// Exception Handling Middleware
+//
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+
+//
 // -------------------- Build the app --------------------
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 //
 // -------------------- Seed initial data --------------------
