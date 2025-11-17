@@ -14,8 +14,20 @@ public class ProjectsController : ControllerBase
     public ProjectsController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> Get() =>
-        Ok(await _mediator.Send(new GetProjectsQuery()));
+    public async Task<IActionResult> Get(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = "name",
+        [FromQuery] string? sortDirection = "asc"
+      ) =>
+        Ok(await _mediator.Send(new GetProjectsQuery(
+            PageNumber: pageNumber,
+            PageSize: pageSize,
+            Search: search,
+            SortBy: sortBy,
+            SortDirection: sortDirection
+         )));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
