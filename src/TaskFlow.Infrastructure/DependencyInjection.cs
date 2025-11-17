@@ -6,11 +6,12 @@ using Azure.Storage.Blobs;
 
 using RabbitMQ.Client;
 
-using TaskFlow.Application.Common.Interfaces;           // IBlobService, IQueueService, repos interfaces
-using TaskFlow.Infrastructure.Files;                    // AzureBlobService
-using TaskFlow.Infrastructure.Messaging;                // RabbitMqPublisher
-using TaskFlow.Infrastructure.Persistence;              // TaskFlowDbContext
-using TaskFlow.Infrastructure.Persistence.Repositories; // ProjectRepository, TaskRepository
+using TaskFlow.Application.Common.Interfaces;          
+using TaskFlow.Infrastructure.Files;                    
+using TaskFlow.Infrastructure.Messaging;                
+using TaskFlow.Infrastructure.Persistence;              
+using TaskFlow.Infrastructure.Persistence.Repositories;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure;
 
@@ -24,11 +25,12 @@ public static class DependencyInjection
 
         // ---------------- Repositories ----------------
         services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IProjectReadRepository, ProjectReadRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
 
         // Αν χρησιμοποιείς και generic repo παράλληλα:
-        services.AddScoped<IRepository<TaskFlow.Domain.Entities.Project>, ProjectRepository>();
-        services.AddScoped<IRepository<TaskFlow.Domain.Entities.TaskItem>, TaskRepository>();
+        services.AddScoped<IRepository<Project>, ProjectRepository>();
+        services.AddScoped<IRepository<TaskItem>, TaskRepository>();
 
         // ---------------- Azure Blob ----------------
         services.AddSingleton(sp =>
