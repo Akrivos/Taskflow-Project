@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TaskFlow.Application.Common.Exceptions
+﻿namespace TaskFlow.Application.Common.Exceptions
 {
     public abstract class AppException : Exception
     {

@@ -1,17 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using Azure.Storage.Blobs;
-
 using RabbitMQ.Client;
-
 using TaskFlow.Application.Common.Interfaces;          
+using TaskFlow.Domain.Entities;
 using TaskFlow.Infrastructure.Files;                    
 using TaskFlow.Infrastructure.Messaging;                
 using TaskFlow.Infrastructure.Persistence;              
 using TaskFlow.Infrastructure.Persistence.Repositories;
-using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure;
 
@@ -33,6 +30,8 @@ public static class DependencyInjection
         services.AddScoped<IRepository<TaskItem>, TaskRepository>();
 
         // ---------------- Azure Blob ----------------
+        services.Configure<BlobRetryOptions>(config.GetSection("AzureBlobStorage:Retry"));
+
         services.AddSingleton(sp =>
         {
             var cs = config["Azure:BlobConnectionString"];

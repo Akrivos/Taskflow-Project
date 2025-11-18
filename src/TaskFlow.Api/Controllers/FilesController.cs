@@ -1,8 +1,8 @@
-﻿// src/TaskFlow.Api/Controllers/FilesController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Api.Controllers.Requests;
+using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Files;
 
 namespace TaskFlow.Api.Controllers;
 
@@ -10,47 +10,80 @@ namespace TaskFlow.Api.Controllers;
 [Route("api/[controller]")]
 public class FilesController : ControllerBase
 {
+    private readonly IFileUploadService _fileUploadService;
     private readonly IBlobService _blobService;
 
-    public FilesController(IBlobService blobService)
+    private const long MaxFileSizeBytes = FileUploadService.MaxFileSizeBytes;
+
+    public FilesController(
+        IFileUploadService fileUploadService,
+        IBlobService blobService)
     {
+        _fileUploadService = fileUploadService;
         _blobService = blobService;
     }
 
-    /// <summary>
-    /// Upload αρχείου σε Azure Blob (Azrite στο τοπικό).
-    /// </summary>
     [HttpPost("upload")]
-    [Consumes("multipart/form-data")] // <-- ΑΠΑΡΑΙΤΗΤΟ για Swagger + IFormFile
-    [Authorize] // αν θες public, βγάλ’ το
-    public async Task<IActionResult> Upload([FromForm] FileUploadRequest request, CancellationToken ct)
+    [Consumes("multipart/form-data")]
+    [Authorize]
+    [RequestSizeLimit(MaxFileSizeBytes)]
+    public async Task<IActionResult> Upload(
+        [FromForm] FileUploadRequest request,
+        CancellationToken ct)
     {
         if (request.File is null || request.File.Length == 0)
-            return BadRequest("No file provided.");
+            return BadRequest(new { error = "Δεν δόθηκε αρχείο ή είναι κενό." });
+
+        if (request.File.Length > MaxFileSizeBytes)
+            return BadRequest(new { error = $"Το αρχείο ξεπερνά το μέγιστο μέγεθος {MaxFileSizeBytes / (1024 * 1024)} MB." });
+
+        var contentType = request.File.ContentType ?? "application/octet-stream";
 
         await using var stream = request.File.OpenReadStream();
 
-        // Ανάλογα με την υπογραφή του IBlobService σου.
-        // Πιο πριν είχες κάτι σαν: UploadAsync(container, stream, contentType, fileName, ct)
-        await _blobService.UploadAsync(
+        var result = await _fileUploadService.UploadAsync(
             request.Container,
             stream,
-            request.File.ContentType ?? "application/octet-stream",
             request.File.FileName,
-            ct
-        );
+            contentType,
+            ct);
 
-        return Ok(new { message = "Uploaded", fileName = request.File.FileName, container = request.Container });
+        if (!result.Success)
+            return BadRequest(new { error = result.ErrorMessage });
+
+        return Created(result.Url!, new
+        {
+            message = "Uploaded",
+            container = result.Container,
+            fileName = result.BlobName,
+            url = result.Url
+        });
     }
 
-    /// <summary>
-    /// Διαγραφή blob.
-    /// </summary>
     [HttpDelete("{container}/{blobName}")]
-    [Authorize] // αν θες public, βγάλ’ το
-    public async Task<IActionResult> Delete(string container, string blobName, CancellationToken ct)
+    [Authorize]
+    public async Task<IActionResult> Delete(
+        string container,
+        string blobName,
+        CancellationToken ct)
     {
-        await _blobService.DeleteAsync(container, blobName, ct);
+        if (string.IsNullOrWhiteSpace(container))
+            return BadRequest("Το container είναι άκυρο.");
+
+        if (string.IsNullOrWhiteSpace(blobName))
+            return BadRequest("Το blob name είναι άκυρο.");
+
+        var safeContainer = container.Trim().ToLowerInvariant();
+        var safeBlobName = System.IO.Path.GetFileName(blobName);
+
+        var deleted = await _blobService.DeleteAsync(
+            safeContainer,
+            safeBlobName,
+            ct);
+
+        if (!deleted)
+            return NotFound(new { error = "Το blob δεν βρέθηκε." });
+
         return NoContent();
     }
 }

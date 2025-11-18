@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace TaskFlow.Api.Controllers.Requests;
+﻿namespace TaskFlow.Api.Controllers.Requests;
 
 public class FileUploadRequest
 {
-    public string Container { get; set; } = "files";
+    public string Container { get; set; } = default!;
     public IFormFile File { get; set; } = default!;
 }
