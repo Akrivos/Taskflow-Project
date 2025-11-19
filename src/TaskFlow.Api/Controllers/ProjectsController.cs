@@ -40,22 +40,22 @@ public class ProjectsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateProjectCommand cmd)
     {
         var id = await _mediator.Send(cmd);
-        return CreatedAtAction(nameof(GetById), new { id }, null);
+        return CreatedAtAction(nameof(Create), new { id }, null);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProjectCommand cmd)
     {
-        cmd.Id = id;
-        await _mediator.Send(cmd);
+        var command = cmd with { Id = id };
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchProjectCommand cmd)
     {
-        cmd.Id = id;
-        await _mediator.Send(cmd);
+        var command = cmd with { Id = id };
+        await _mediator.Send(command);
         return NoContent();
     }
 }

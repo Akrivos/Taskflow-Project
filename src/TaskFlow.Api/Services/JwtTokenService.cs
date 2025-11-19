@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ public class JwtOptions
 
 public interface IJwtTokenService
 {
-    string GenerateToken(string userName, IEnumerable<string> roles);
+    string GenerateToken(string userId, string userName, IEnumerable<string> roles);
 }
 
 public class JwtTokenService : IJwtTokenService
@@ -24,12 +24,13 @@ public class JwtTokenService : IJwtTokenService
     private readonly JwtOptions _opts;
     public JwtTokenService(IOptions<JwtOptions> opts) => _opts = opts.Value;
 
-    public string GenerateToken(string userName, IEnumerable<string> roles)
+    public string GenerateToken(string userId, string userName, IEnumerable<string> roles)
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userName),
+            new Claim(JwtRegisteredClaimNames.Sub, userId),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, userId),
             new Claim(ClaimTypes.Name, userName)
         };
         foreach (var r in roles)
