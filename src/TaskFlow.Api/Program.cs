@@ -116,6 +116,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Tasks.Read", p => p.RequireRole("User", "ProjectManager", "Admin"));
 
     options.AddPolicy("Files.Upload", p => p.RequireRole("User", "ProjectManager", "Admin"));
+
+    options.AddPolicy("Comments.Create", p => p.RequireRole("User", "ProjectManager", "Admin"));
+    options.AddPolicy("Comments.Read", p => p.RequireRole("User", "ProjectManager", "Admin"));
+    options.AddPolicy("Comments.Delete", p => p.RequireRole("ProjectManager", "Admin"));
 });
 
 //
@@ -123,13 +127,14 @@ builder.Services.AddAuthorization(options =>
 // Add controllers, enable automatic validation via FluentValidation,
 // and configure Swagger with Bearer auth support.
 //
-builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
+//builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+//{
+//    options.SuppressModelStateInvalidFilter = true;
+//});
+builder.Services.AddControllers();
 
 // Automatically run FluentValidation validators on incoming DTOs.
-//builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationAutoValidation();
 
 // Swagger/OpenAPI so we can test the API easily (and include JWT auth).
 builder.Services.AddEndpointsApiExplorer();

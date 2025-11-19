@@ -47,7 +47,7 @@ public class AuthController : ControllerBase
         if (!pass.Succeeded) return Unauthorized();
 
         var roles = await _users.GetRolesAsync(user);
-        var token = _tokens.GenerateToken(user.UserName!, roles);
+        var token = _tokens.GenerateToken(user.Id, user.UserName!, roles);
         return Ok(new { access_token = token, token_type = "Bearer", roles });
     }
 }
