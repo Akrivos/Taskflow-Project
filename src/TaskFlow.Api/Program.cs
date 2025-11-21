@@ -169,7 +169,10 @@ builder.Services.AddSwaggerGen(c =>
 // -------------------- Background services --------------------
 // Attach background RabbitMQ consumer inside the API process.
 //
-builder.Services.AddHostedService<TaskFlow.Api.Workers.RabbitMqTaskCreatedConsumer>();
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHostedService<TaskFlow.Api.Workers.RabbitMqTaskCreatedConsumer>();
+}
 
 //
 // Exception Handling Middleware
@@ -186,7 +189,10 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 // -------------------- Seed initial data --------------------
 // This will ensure default roles and demo users exist in the DB.
 //
-await SeedAsync(app.Services);
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    await SeedAsync(app.Services);
+}
 
 //
 // -------------------- HTTP pipeline --------------------
@@ -292,3 +298,5 @@ static async Task SeedAsync(IServiceProvider sp)
         password: "Pass@123",
         role: "User");
 }
+
+public partial class Program { }
