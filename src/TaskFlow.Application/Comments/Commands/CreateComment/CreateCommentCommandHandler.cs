@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Domain.Entities;
 
@@ -7,23 +8,35 @@ namespace TaskFlow.Application.Comments.Commands.CreateComment;
 public class CreateCommentCommandHandler: IRequestHandler<CreateCommentCommand, Guid>
 {
     private readonly ICurrentUser _user;
-    private readonly ICommentRepository _repo;
-    public CreateCommentCommandHandler(ICurrentUser user, ICommentRepository repo)
+    private readonly ICommentRepository _commentRepo;
+    private readonly ITaskRepository _taskRepo;
+    public CreateCommentCommandHandler(ICurrentUser user, ICommentRepository commentRepo, ITaskRepository taskRepo)
     {
-        _repo = repo;
         _user = user;
+        _commentRepo = commentRepo;
+        _taskRepo = taskRepo;
     }
 
     public async Task<Guid> Handle(CreateCommentCommand request, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(_user.UserId))
+        var taskId = request.TaskItemId;
+        var content = request.Content;
+        var userId = _user.UserId;
+        if (string.IsNullOrWhiteSpace(userId))
         {
             throw new UnauthorizedAccessException("User must be authenticated to create a comment.");
         }
-        var comment = new Comment(request.TaskItemId, request.Content, _user.UserId);
+
+        var taskItem = await _taskRepo.GetByIdAsync(taskId, ct);
+        if (taskItem == null)
+        {
+            throw new NotFoundException("Task", taskId);
+        }
+
+        var comment = new Comment(taskId, content, userId);
         comment.Validate();
-        await _repo.AddAsync(comment, ct);
-        await _repo.SaveChangesAsync(ct);
+        await _commentRepo.AddAsync(comment, ct);
+        await _commentRepo.SaveChangesAsync(ct);
         return comment.Id;
     }
 }
