@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
@@ -35,7 +35,9 @@ public class RabbitMqTaskCreatedConsumer : BackgroundService
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (_channel is null) return Task.CompletedTask;
+
         var consumer = new EventingBasicConsumer(_channel);
+
         consumer.Received += (ch, ea) =>
         {
             var body = ea.Body.ToArray();
@@ -43,8 +45,11 @@ public class RabbitMqTaskCreatedConsumer : BackgroundService
             _logger.LogInformation("Received from 'task-created': {Message}", msg);
             _channel?.BasicAck(ea.DeliveryTag, multiple: false);
         };
+
         _channel.BasicConsume("task-created", autoAck: false, consumer: consumer);
-        return Task.CompletedTask;
+
+        // Κρατάμε ζωντανό το background service μέχρι να ζητηθεί cancellation
+        return Task.Delay(Timeout.Infinite, stoppingToken);
     }
 
     public override void Dispose()

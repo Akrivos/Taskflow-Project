@@ -39,7 +39,6 @@ public class ProjectsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProjectCommand cmd)
     {
-        Console.WriteLine(User);
         var id = await _mediator.Send(cmd);
         return CreatedAtAction(nameof(Create), new { id }, null);
     }
