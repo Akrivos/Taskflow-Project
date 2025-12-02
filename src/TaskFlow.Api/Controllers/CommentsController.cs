@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Application.Comments.Commands.CreateComment;
 using TaskFlow.Application.Comments.Commands.DeleteComment;
+using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 
 namespace TaskFlow.Api.Controllers;
 
@@ -36,5 +37,23 @@ public class CommentsController : ControllerBase
     {
         await _mediator.Send(new DeleteCommentCommand(id));
         return NoContent();
+    }
+
+    [HttpGet("task/{taskId:guid}/latests")]
+    public async Task<IActionResult> GetLatestsByTaskId(
+        [FromRoute] Guid taskId, 
+        [FromQuery] int? limit = 10, 
+        [FromQuery] string? sortDirection = "desc",
+        [FromQuery] string? sortBy = "createdAt"
+       )
+    {
+        Console.WriteLine($"Received request to get latest comments for TaskId: {taskId}, Limit: {limit}, SortDirection: {sortDirection}, SortBy: {sortBy}");
+        var comments = await _mediator.Send(new GetLatestsByTaskIdQuery(
+            TaskId: taskId,
+            Limit: limit,
+            SortDirection: sortDirection,
+            SortBy: sortBy
+         ));
+        return Ok(comments);
     }
 }

@@ -25,6 +25,8 @@ public static class DependencyInjection
         services.AddScoped<IProjectReadRepository, ProjectReadRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+        services.AddScoped<ICommentReadRepository, CommentReadRepository>();
 
         // Αν χρησιμοποιείς και generic repo παράλληλα:
         services.AddScoped<IRepository<Project>, ProjectRepository>();

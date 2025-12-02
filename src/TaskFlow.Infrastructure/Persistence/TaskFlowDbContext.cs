@@ -11,6 +11,7 @@ public class TaskFlowDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<Comment> Comment => Set<Comment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
