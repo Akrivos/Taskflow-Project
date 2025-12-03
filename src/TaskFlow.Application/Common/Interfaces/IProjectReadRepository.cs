@@ -12,5 +12,13 @@ namespace TaskFlow.Application.Common.Interfaces
             string? sortBy,
             string? sortDirection,
             CancellationToken ct);
+
+        Task<PagedResult<GetProjectsWithMembersResponseDto>> GetProjectsWithMembersAsync(
+            int pageNumber,
+            int pageSize,
+            string? search,
+            string? sortBy,
+            string? sortDirection,
+            CancellationToken ct);
     }
 }

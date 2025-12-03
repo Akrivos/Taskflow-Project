@@ -73,4 +73,72 @@ public sealed class ProjectReadRepository : IProjectReadRepository
             totalCount);
     }
 
+    public async Task<PagedResult<GetProjectsWithMembersResponseDto>> GetProjectsWithMembersAsync(
+        int pageNumber,
+        int pageSize,
+        string? search,
+        string? sortBy,
+        string? sortDirection,
+        CancellationToken ct)
+    {
+        if (pageNumber < 1) pageNumber = 1;
+
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _db.Projects.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+
+            query = query.Where(p =>
+                p.Name.Contains(term) ||
+                (p.Description != null && p.Description.Contains(term)));
+        }
+
+        var sortByNorm = string.IsNullOrWhiteSpace(sortBy)
+            ? "name"
+            : sortBy.Trim().ToLowerInvariant();
+
+        var sortDirNorm = string.IsNullOrWhiteSpace(sortDirection)
+            ? "asc"
+            : sortDirection.Trim().ToLowerInvariant();
+
+        query = (sortByNorm, sortDirNorm) switch
+        {
+            ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
+            ("createdat", _) => query.OrderBy(p => p.CreatedAt),
+
+            ("name", "desc") => query.OrderByDescending(p => p.Name),
+            _ => query.OrderBy(p => p.Name)
+        };
+
+        var totalCount = await query.CountAsync(ct);
+
+        var projects = await query.Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new GetProjectsWithMembersResponseDto(
+                p.Id,
+                p.Name,
+                p.Description,
+                p.CreatedAt,
+                p.Tasks.Select(t => new ProjectTaskDetails(
+                    t.Id,
+                    t.Title,
+                    t.Description,
+                    t.Status
+                )).ToList(),
+                p.Members.Select(m => new ProjectMembersDetails(
+                    m.Id,
+                    m.UserId,
+                    m.Role
+                )).ToList()
+            )).ToListAsync(ct);
+        return new PagedResult<GetProjectsWithMembersResponseDto>(
+            projects,
+            pageNumber,
+            pageSize,
+            totalCount);
+    }
 }
