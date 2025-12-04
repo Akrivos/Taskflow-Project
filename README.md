@@ -30,20 +30,22 @@ Features include:
 
 ## Project Layout
 
+```text
 src/
 ├─ TaskFlow.Api
 ├─ TaskFlow.Application
 ├─ TaskFlow.Domain
 └─ TaskFlow.Infrastructure
+
 tests/
 docker-compose.yml
 TaskFlow.sln
+```
+
 
 ---
 
 ## Running Locally
-
----
 
 ### Requirements
 
@@ -51,22 +53,22 @@ TaskFlow.sln
 - SQL Server (local or container)
 - Docker (optional)
 
----
-
 #### Option A: Docker
-git clone https://github.com/Akrivos/Taskflow-Project.git
-cd Taskflow-Project
-docker compose up --build
+
+- git clone https://github.com/Akrivos/Taskflow-Project.git
+- cd Taskflow-Project
+- docker compose up --build
 
 Swagger UI will be available at:
 http://localhost:8080/swagger
 
 #### Option B: Without Docker
-git clone https://github.com/Akrivos/Taskflow-Project.git
-cd Taskflow-Project
-dotnet restore
-dotnet build
-dotnet run --project src/TaskFlow.Api
+
+- git clone https://github.com/Akrivos/Taskflow-Project.git
+- cd Taskflow-Project
+- dotnet restore
+- dotnet build
+- dotnet run --project src/TaskFlow.Api
 
 ---
 
