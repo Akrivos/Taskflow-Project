@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using TaskFlow.Application.Common.Interfaces;
 
 namespace TaskFlow.Infrastructure.Messaging
@@ -20,7 +16,6 @@ namespace TaskFlow.Infrastructure.Messaging
         {
             using var channel = _connection.CreateModel();
 
-            // v6.x API signatures
             channel.QueueDeclare(
                 queue: queue,
                 durable: true,
@@ -46,7 +41,7 @@ namespace TaskFlow.Infrastructure.Messaging
 
         public void Dispose()
         {
-            try { _connection?.Close(); } catch { /* ignore */ }
+            try { _connection?.Close(); } catch { }
             _connection?.Dispose();
         }
     }

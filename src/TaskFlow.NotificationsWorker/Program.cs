@@ -11,12 +11,11 @@ using RabbitMQ.Client.Events;
 await Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
-        // RabbitMQ connection factory (παίρνει τιμές από env/appsettings)
         services.AddSingleton<IConnectionFactory>(_ => new ConnectionFactory
         {
-            HostName = ctx.Configuration["RabbitMQ:HostName"] ?? "rabbitmq", // μέσα στο compose είναι το service name
-            UserName = ctx.Configuration["RabbitMQ:UserName"] ?? "guest",
-            Password = ctx.Configuration["RabbitMQ:Password"] ?? "guest"
+            HostName = ctx.Configuration["RabbitMQ:HostName"],
+            UserName = ctx.Configuration["RabbitMQ:UserName"],
+            Password = ctx.Configuration["RabbitMQ:Password"]
         });
 
         services.AddHostedService<RabbitConsumer>();
@@ -39,7 +38,6 @@ public sealed class RabbitConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // μικρό retry loop μέχρι να σηκωθεί το RabbitMQ
         var retries = 0;
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -56,7 +54,7 @@ public sealed class RabbitConsumer : BackgroundService
                     arguments: null
                 );
 
-                break; // συνδεθήκαμε οκ
+                break;
             }
             catch (Exception ex) when (retries < 15)
             {
@@ -76,10 +74,7 @@ public sealed class RabbitConsumer : BackgroundService
         consumer.Received += (_, ea) =>
         {
             var message = Encoding.UTF8.GetString(ea.Body.ToArray());
-            _logger.LogInformation("📩 Notification received: {Message}", message);
-
-            // εδώ βάζεις τη λογική σου (π.χ. email, signalR, κλπ)
-            // εφόσον δεν κάνουμε manual ack εδώ (autoAck=true παρακάτω)
+            _logger.LogInformation("Notification received: {Message}", message);
         };
 
         _channel.BasicConsume(
@@ -88,7 +83,6 @@ public sealed class RabbitConsumer : BackgroundService
             consumer: consumer
         );
 
-        // Κράτα το service ζωντανό
         await Task.Delay(Timeout.Infinite, stoppingToken);
     }
 

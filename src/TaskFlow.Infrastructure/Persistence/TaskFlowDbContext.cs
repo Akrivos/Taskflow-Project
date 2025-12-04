@@ -20,7 +20,6 @@ public class TaskFlowDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<TaskItem>().Property(t => t.Title).IsRequired().HasMaxLength(200);
         modelBuilder.Entity<Attachment>().Property(a => a.FileName).IsRequired();
 
-        // Αυτό φορτώνει ΟΛΕΣ τις *IEntityTypeConfiguration<T>* που βρίσκονται στο assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TaskFlowDbContext).Assembly);
     }
 }

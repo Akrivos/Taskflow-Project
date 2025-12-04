@@ -27,8 +27,6 @@ public static class DependencyInjection
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         services.AddScoped<ICommentReadRepository, CommentReadRepository>();
-
-        // Αν χρησιμοποιείς και generic repo παράλληλα:
         services.AddScoped<IRepository<Project>, ProjectRepository>();
         services.AddScoped<IRepository<TaskItem>, TaskRepository>();
 
@@ -46,9 +44,9 @@ public static class DependencyInjection
         services.AddSingleton<IConnectionFactory>(sp =>
             new ConnectionFactory
             {
-                HostName = config["RabbitMQ:HostName"] ?? "localhost",
-                UserName = config["RabbitMQ:UserName"] ?? "guest",
-                Password = config["RabbitMQ:Password"] ?? "guest"
+                HostName = config["RabbitMQ:HostName"],
+                UserName = config["RabbitMQ:UserName"],
+                Password = config["RabbitMQ:Password"]
             });
 
         services.AddSingleton<IQueueService, RabbitMqPublisher>();
