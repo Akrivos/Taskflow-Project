@@ -32,10 +32,10 @@ public class FilesController : ControllerBase
         CancellationToken ct)
     {
         if (request.File is null || request.File.Length == 0)
-            return BadRequest(new { error = "Δεν δόθηκε αρχείο ή είναι κενό." });
+            return BadRequest(new { error = "File does not exists or its empty." });
 
         if (request.File.Length > MaxFileSizeBytes)
-            return BadRequest(new { error = $"Το αρχείο ξεπερνά το μέγιστο μέγεθος {MaxFileSizeBytes / (1024 * 1024)} MB." });
+            return BadRequest(new { error = $"File exceeds maximum size {MaxFileSizeBytes / (1024 * 1024)} MB." });
 
         var contentType = request.File.ContentType ?? "application/octet-stream";
 
@@ -68,10 +68,10 @@ public class FilesController : ControllerBase
         CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(container))
-            return BadRequest("Το container είναι άκυρο.");
+            return BadRequest("Invalid container.");
 
         if (string.IsNullOrWhiteSpace(blobName))
-            return BadRequest("Το blob name είναι άκυρο.");
+            return BadRequest("Invalid blob.");
 
         var safeContainer = container.Trim().ToLowerInvariant();
         var safeBlobName = System.IO.Path.GetFileName(blobName);
@@ -82,7 +82,7 @@ public class FilesController : ControllerBase
             ct);
 
         if (!deleted)
-            return NotFound(new { error = "Το blob δεν βρέθηκε." });
+            return NotFound(new { error = "Blob has not found." });
 
         return NoContent();
     }

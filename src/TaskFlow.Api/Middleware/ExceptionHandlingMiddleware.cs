@@ -1,8 +1,5 @@
 ﻿using System.Text.Json;
-using System.Linq;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using TaskFlow.Application.Common.Exceptions;
 
 namespace TaskFlow.Api.Middleware
@@ -34,16 +31,12 @@ namespace TaskFlow.Api.Middleware
 
             var status = ex switch
             {
-                // δικά σου app exceptions
                 AppValidationException => StatusCodes.Status400BadRequest,
                 ForbiddenAccessException => StatusCodes.Status403Forbidden,
                 ConflictException => StatusCodes.Status409Conflict,
                 NotFoundException => StatusCodes.Status404NotFound,
-
-                // FluentValidation
                 ValidationException => StatusCodes.Status400BadRequest,
 
-                // κλασικά .NET
                 KeyNotFoundException => StatusCodes.Status404NotFound,
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
 

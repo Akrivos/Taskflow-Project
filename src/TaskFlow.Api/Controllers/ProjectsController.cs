@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Application.Projects.Commands;
 using TaskFlow.Application.Projects.Queries;
+using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
 
 namespace TaskFlow.Api.Controllers;
 [ApiController]
@@ -57,5 +58,25 @@ public class ProjectsController : ControllerBase
         var command = cmd with { Id = id };
         await _mediator.Send(command);
         return NoContent();
+    }
+
+    [HttpGet("with-members")]
+    [Authorize(Policy = "Projects.Read")]
+    public async Task<IActionResult> GetProjectsWithMembers(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = "createdAt",
+        [FromQuery] string? sortDirection = "asc"
+     )
+    {
+        var projects = await _mediator.Send(new GetProjectsWithMembersQuery(
+            PageNumber: pageNumber,
+            PageSize: pageSize,
+            Search: search,
+            SortBy: sortBy,
+            SortDirection: sortDirection
+          ));
+        return Ok(projects);
     }
 }

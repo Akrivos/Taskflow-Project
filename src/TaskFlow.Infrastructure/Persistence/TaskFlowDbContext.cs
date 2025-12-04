@@ -11,6 +11,7 @@ public class TaskFlowDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<Comment> Comment => Set<Comment>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,7 +20,6 @@ public class TaskFlowDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<TaskItem>().Property(t => t.Title).IsRequired().HasMaxLength(200);
         modelBuilder.Entity<Attachment>().Property(a => a.FileName).IsRequired();
 
-        // Αυτό φορτώνει ΟΛΕΣ τις *IEntityTypeConfiguration<T>* που βρίσκονται στο assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TaskFlowDbContext).Assembly);
     }
 }

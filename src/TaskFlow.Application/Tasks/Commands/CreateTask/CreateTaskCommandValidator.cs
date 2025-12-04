@@ -7,11 +7,11 @@ public sealed class CreateTaskCommandValidator : AbstractValidator<CreateTaskCom
     public CreateTaskCommandValidator()
     {
         RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("Ο τίτλος είναι υποχρεωτικός.")
+            .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200);
         RuleFor(x => x.Description)
             .MaximumLength(4000);
         RuleFor(x => x.ProjectId)
-            .NotEmpty().WithMessage("Απαιτείται ProjectId.");
+            .NotEmpty().WithMessage("ProjectId is required.");
     }
 }

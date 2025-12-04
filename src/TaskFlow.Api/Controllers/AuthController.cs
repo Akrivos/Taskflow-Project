@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Api.Services;
 using TaskFlow.Infrastructure.Identity;
-using System.Security.Claims;
 
 namespace TaskFlow.Api.Controllers;
 

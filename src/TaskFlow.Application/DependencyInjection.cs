@@ -15,7 +15,6 @@ public static class DependencyInjection
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
 
-        // 🔹 Αυτό σκανάρει ΟΛΑ τα classes που κληρονομούν από AbstractValidator<T>
         services.AddValidatorsFromAssembly(assembly);
 
         services.AddScoped<IFileUploadService, FileUploadService>();

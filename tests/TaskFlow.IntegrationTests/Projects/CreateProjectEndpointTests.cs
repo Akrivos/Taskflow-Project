@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -23,7 +22,6 @@ public class CreateProjectEndpointTests : IClassFixture<TaskFlowApiFactory>
     [Fact]
     public async Task Post_Projects_Should_Create_Project_And_Return_201()
     {
-        // Arrange
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Test");
@@ -36,13 +34,10 @@ public class CreateProjectEndpointTests : IClassFixture<TaskFlowApiFactory>
             Description = "Created from integration test"
         };
 
-        // Act
         var response = await client.PostAsJsonAsync("/api/projects", request);
 
-        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        // Optional: έλεγξε ότι γράφτηκε στη DB
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TaskFlowDbContext>();
 

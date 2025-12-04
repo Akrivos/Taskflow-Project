@@ -1,12 +1,11 @@
-﻿using System.Security.Claims;
-using TaskFlow.Application.Common.Interfaces;
+﻿using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.Common.Models;
 
 namespace TaskFlow.Application.Files;
 
 public sealed class FileUploadService : IFileUploadService
 {
-    public const long MaxFileSizeBytes = 20 * 1024 * 1024; // 20MB
+    public const long MaxFileSizeBytes = 20 * 1024 * 1024;
 
     private static readonly string[] AllowedContentTypes =
     {
@@ -32,20 +31,20 @@ public sealed class FileUploadService : IFileUploadService
         CancellationToken ct)
     {
         if (fileStream is null || !fileStream.CanRead)
-            return FileUploadResult.Fail("Το stream του αρχείου δεν είναι έγκυρο.");
+            return FileUploadResult.Fail("Invalid file-stream");
 
         if (string.IsNullOrWhiteSpace(container))
-            return FileUploadResult.Fail("Το container είναι κενό.");
+            return FileUploadResult.Fail("Container is empty.");
 
         if (string.IsNullOrWhiteSpace(contentType))
             contentType = "application/octet-stream";
 
         if (!AllowedContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase))
-            return FileUploadResult.Fail("Ο τύπος του αρχείου δεν επιτρέπεται.");
+            return FileUploadResult.Fail("Invalid file type");
 
         var containerName = SanitizeContainerName(container);
         if (string.IsNullOrWhiteSpace(containerName))
-            return FileUploadResult.Fail("Μη έγκυρο όνομα container.");
+            return FileUploadResult.Fail("Invalid container name.");
 
         var extension = Path.GetExtension(originalFileName);
         var blobName = $"{Guid.NewGuid():N}{extension}";

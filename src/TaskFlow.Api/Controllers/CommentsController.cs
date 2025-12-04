@@ -16,13 +16,6 @@ public class CommentsController : ControllerBase
     private readonly IMediator _mediator;
     public CommentsController(IMediator mediator) { _mediator = mediator;}
 
-    //[HttpGet("{id:guid}")]
-    //public async Task<IActionResult> GetById([FromRoute] Guid id)
-    //{
-    //    var comment = await _mediator.Send(new GetCommentQuery(id));
-    //    return Ok(comment);
-    //}
-
     [HttpPost]
     [Authorize(Policy = "Comments.Create")]
     public async Task<IActionResult> Create([FromBody] CreateCommentCommand cmd)
