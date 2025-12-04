@@ -9,7 +9,6 @@ using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication;
 
 public class TaskFlowApiFactory : WebApplicationFactory<Program>
 {
