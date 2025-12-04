@@ -30,6 +30,7 @@ Features include:
 
 ## Project Layout
 
+```text
 src/
 ├─ TaskFlow.Api
 ├─ TaskFlow.Application
@@ -39,21 +40,18 @@ src/
 tests/
 docker-compose.yml
 TaskFlow.sln
+```
 
 
 ---
 
 ## Running Locally
 
----
-
 ### Requirements
 
 - .NET 8 SDK
 - SQL Server (local or container)
 - Docker (optional)
-
----
 
 #### Option A: Docker
 
