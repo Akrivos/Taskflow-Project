@@ -34,7 +34,6 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenWriteRepository, RefreshTokenWriteRepository>();
 
         // ---------------- Services ----------------
-        //services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserManagerService, UserManagerService>();
         services.AddScoped<IRoleManagerService, RoleManagerService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();

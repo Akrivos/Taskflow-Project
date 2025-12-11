@@ -30,29 +30,6 @@ public class RefreshTokenWriteRepository : IRefreshTokenWriteRepository
         return token;
     }
 
-    public async Task RevokeAllForUserAsync(string userId, CancellationToken ct = default)
-    {
-        var tokens = await _db.RefreshTokens
-            .Where(rt => rt.UserId == userId && rt.RevokedAt == null)
-            .ToListAsync(ct);
-
-        foreach (var t in tokens)
-        {
-            t.RevokedAt = DateTime.UtcNow;
-        }
-    }
-
-    public async Task RotateAsync(string oldToken, string newToken, CancellationToken ct = default)
-    {
-        await _db.RefreshTokens
-            .Where(rt => rt.Token == oldToken)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(rt => rt.RevokedAt, _ => DateTime.UtcNow)
-                    .SetProperty(rt => rt.ReplacedByToken, _ => newToken),
-                ct);
-    }
-
     public Task SaveChangesAsync(CancellationToken ct = default)
     {
         return _db.SaveChangesAsync(ct);
