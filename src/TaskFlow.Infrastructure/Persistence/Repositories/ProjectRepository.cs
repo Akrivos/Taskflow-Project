@@ -12,7 +12,7 @@ public sealed class ProjectRepository : IProjectRepository
     public ProjectRepository(TaskFlowDbContext db) => _db = db;
 
     public async Task<Project?> GetByIdAsync(Guid id, CancellationToken ct) =>
-        await _db.Projects.FindAsync(new object?[] { id }, ct);
+        await _db.Projects.FindAsync(new { id }, ct);
 
     public async Task AddAsync(Project entity, CancellationToken ct)
     {

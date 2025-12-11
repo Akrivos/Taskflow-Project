@@ -2,7 +2,7 @@
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "Your_password123"
+      SA_PASSWORD: "My_Password123"
       ACCEPT_EULA: "Y"
     ports:
       - "11433:1433"
@@ -44,7 +44,7 @@
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
 
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=TaskFlowDb;User Id=sa;Password=Password123;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=TaskFlowDb;User Id=sa;Password=My_Password123;TrustServerCertificate=True
       - RabbitMQ__HostName=rabbitmq
       - RabbitMQ__UserName=guest
       - RabbitMQ__Password=guest
