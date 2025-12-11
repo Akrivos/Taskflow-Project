@@ -12,7 +12,7 @@ public sealed class TaskRepository : ITaskRepository
     public TaskRepository(TaskFlowDbContext db) => _db = db;
 
     public async Task<TaskItem?> GetByIdAsync(Guid id, CancellationToken ct) =>
-        await _db.Tasks.FindAsync(new object?[] { id }, ct);
+        await _db.Tasks.FindAsync(new { id }, ct);
 
     public async Task AddAsync(TaskItem entity, CancellationToken ct)
     {

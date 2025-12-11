@@ -1,23 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using TaskFlow.Application.Common.Configuration;
+using TaskFlow.Application.Common.Interfaces;
 
-namespace TaskFlow.Api.Services;
-
-public class JwtOptions
-{
-    public string Issuer { get; set; } = string.Empty;
-    public string Audience { get; set; } = string.Empty;
-    public string Key { get; set; } = string.Empty;
-    public int ExpiresMinutes { get; set; } = 60;
-}
-
-public interface IJwtTokenService
-{
-    string GenerateToken(string userId, string userName, IEnumerable<string> roles);
-}
+namespace TaskFlow.Infrastructure.Persistence.Services;
 
 public class JwtTokenService : IJwtTokenService
 {

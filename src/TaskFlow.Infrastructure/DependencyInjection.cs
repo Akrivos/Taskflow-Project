@@ -9,6 +9,7 @@ using TaskFlow.Infrastructure.Files;
 using TaskFlow.Infrastructure.Messaging;                
 using TaskFlow.Infrastructure.Persistence;              
 using TaskFlow.Infrastructure.Persistence.Repositories;
+using TaskFlow.Infrastructure.Persistence.Services;
 
 namespace TaskFlow.Infrastructure;
 
@@ -29,6 +30,13 @@ public static class DependencyInjection
         services.AddScoped<ICommentReadRepository, CommentReadRepository>();
         services.AddScoped<IRepository<Project>, ProjectRepository>();
         services.AddScoped<IRepository<TaskItem>, TaskRepository>();
+        services.AddScoped<IRefreshTokenReadRepository, RefreshTokenReadRepository>();
+        services.AddScoped<IRefreshTokenWriteRepository, RefreshTokenWriteRepository>();
+
+        // ---------------- Services ----------------
+        services.AddScoped<IUserManagerService, UserManagerService>();
+        services.AddScoped<IRoleManagerService, RoleManagerService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         // ---------------- Azure Blob ----------------
         services.Configure<BlobRetryOptions>(config.GetSection("AzureBlobStorage:Retry"));

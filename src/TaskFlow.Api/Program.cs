@@ -1,19 +1,20 @@
-﻿using System.Security.Claims;
-using System.Text;
-
-using FluentValidation.AspNetCore;
+﻿using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-
+using System.Security.Claims;
+using System.Text;
 using TaskFlow.Api.Middleware;
 using TaskFlow.Api.Services;
 using TaskFlow.Application;
+using TaskFlow.Application.Common.Configuration;
+using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Infrastructure;
 using TaskFlow.Infrastructure.Identity;
 using TaskFlow.Infrastructure.Persistence;
+using TaskFlow.Infrastructure.Persistence.Services;
 
 // ---------------------------------------------------------
 // Builder & configuration
@@ -95,7 +96,7 @@ public partial class Program
 
         // JWT options & service
         services.Configure<JwtOptions>(config.GetSection("Jwt"));
-        services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         // Authentication (JWT Bearer)
         services

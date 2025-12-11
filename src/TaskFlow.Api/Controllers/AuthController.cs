@@ -1,52 +1,52 @@
-using Microsoft.AspNetCore.Identity;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Api.Services;
-using TaskFlow.Infrastructure.Identity;
+using TaskFlow.Api.Controllers.Requests;
+using TaskFlow.Application.Auth.Commands.Login;
+using TaskFlow.Application.Auth.Commands.RefreshTokenCommand;
+using TaskFlow.Application.Auth.Commands.RegisterCommand;
 
 namespace TaskFlow.Api.Controllers;
-
-public record RegisterRequest(string Username, string Email, string Password, string Role);
-public record LoginRequest(string Username, string Password);
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _users;
-    private readonly SignInManager<ApplicationUser> _signIn;
-    private readonly RoleManager<IdentityRole> _roles;
-    private readonly IJwtTokenService _tokens;
+    private readonly IMediator _mediator;
 
-    public AuthController(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn, RoleManager<IdentityRole> roles, IJwtTokenService tokens)
+    public AuthController(IMediator mediator)
     {
-        _users = users; _signIn = signIn; _roles = roles; _tokens = tokens;
+        _mediator = mediator;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest req)
     {
-        if (!await _roles.RoleExistsAsync(req.Role))
-            return BadRequest($"Role '{req.Role}' does not exist.");
-
-        var user = new ApplicationUser { UserName = req.Username, Email = req.Email };
-        var result = await _users.CreateAsync(user, req.Password);
-        if (!result.Succeeded) return BadRequest(result.Errors);
-
-        await _users.AddToRoleAsync(user, req.Role);
-        return Ok(new { message = "User created", user = user.UserName, role = req.Role });
+        var result = await _mediator.Send(new RegisterCommand(req.Username, req.Email, req.Password, req.Role));
+        return CreatedAtAction(nameof(Register), new { Id = result });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
-        var user = await _users.FindByNameAsync(req.Username);
-        if (user is null) return Unauthorized();
+        var result = await _mediator.Send(new LoginCommand(req.UserName, req.Password));
+        return Ok(new { 
+            access_token = result.AccessToken, 
+            refresh_token = result.RefreshToken, 
+            token_type = "Bearer", 
+            roles = result.Roles 
+       });
+    }
 
-        var pass = await _signIn.CheckPasswordSignInAsync(user, req.Password, false);
-        if (!pass.Succeeded) return Unauthorized();
-
-        var roles = await _users.GetRolesAsync(user);
-        var token = _tokens.GenerateToken(user.Id, user.UserName!, roles);
-        return Ok(new { access_token = token, token_type = "Bearer", roles });
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest refreshToken)
+    {
+        var result = await _mediator.Send(new RefreshTokenCommand(refreshToken.RefreshToken));
+        return Ok(new
+        {
+            access_token = result.AccessToken,
+            refresh_token = result.RefreshToken,
+            token_type = "Bearer",
+            roles = result.Roles
+        });
     }
 }

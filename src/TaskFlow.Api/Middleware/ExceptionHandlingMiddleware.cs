@@ -43,7 +43,7 @@ namespace TaskFlow.Api.Middleware
                 _ => StatusCodes.Status500InternalServerError
             };
 
-            _logger.LogError(ex, "❌ Unhandled exception. TraceId: {TraceId}", traceId);
+            _logger.LogError(ex, "Unhandled exception. TraceId: {TraceId}", traceId);
 
             var title = ex switch
             {

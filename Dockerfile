@@ -1,12 +1,12 @@
-# Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
 COPY ./src/ ./src/
-COPY ./TaskFlow.sln ./
-RUN dotnet restore
+
+RUN dotnet restore src/TaskFlow.Api/TaskFlow.Api.csproj
+
 RUN dotnet publish src/TaskFlow.Api/TaskFlow.Api.csproj -c Release -o /app/publish
 
-# Run
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish ./
