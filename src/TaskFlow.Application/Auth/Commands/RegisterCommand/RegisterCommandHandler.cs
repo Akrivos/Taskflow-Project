@@ -25,23 +25,23 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
             throw new ValidationException($"Role '{request.Role}' does not exist.");
         }
 
-        var user = new UserDto
+        var userBody = new UserDto
         {
             UserName = request.Username,
             Email = request.Email,
             Password = request.Password
         };
-        var result = await _userService.CreateAsync(user);
-        if(result == null)
+        var user = await _userService.CreateAsync(userBody);
+        if(user is null)
         {
             throw new ValidationException("User registration failed.");
         }
 
-        var userWithRole = await _userService.AddToRoleAsync(result.Id!, request.Role);
-        if(userWithRole == null) {
+        var userWithRole = await _userService.AddToRoleAsync(user.Id!, request.Role);
+        if(userWithRole is null) {
             throw  new ValidationException("Assigning role to user failed.");
         }
 
-        return result.Id;
+        return user.Id;
     }
 }

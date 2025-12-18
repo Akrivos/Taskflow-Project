@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Common.Interfaces;
-using TaskFlow.Application.DTOs;
+using TaskFlow.Application.Projects.Queries.GetProjects;
+using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure.Persistence.Repositories;
@@ -9,9 +10,16 @@ public sealed class ProjectReadRepository : IProjectReadRepository
 {
     private readonly TaskFlowDbContext _db;
 
-    public ProjectReadRepository(TaskFlowDbContext db) => _db = db;
+    public ProjectReadRepository(TaskFlowDbContext db)
+    {
+        _db = db;
+    }
 
-    public async Task<PagedResult<ProjectDto>> GetProjectsAsync(
+    public async Task<Project> GetByIdAsync(Guid id, CancellationToken ct)
+    {
+        return await _db.Projects.FindAsync(new { id }, ct);
+    }
+    public async Task<PagedResult<ProjectListItem>> GetProjectsAsync(
         int pageNumber,
         int pageSize,
         string? search,
@@ -59,21 +67,21 @@ public sealed class ProjectReadRepository : IProjectReadRepository
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new ProjectDto(
+            .Select(p => new ProjectListItem(
                 p.Id,
                 p.Name,
                 p.Description
             ))
             .ToListAsync(ct);
 
-        return new PagedResult<ProjectDto>(
+        return new PagedResult<ProjectListItem>(
             items,
             pageNumber,
             pageSize,
             totalCount);
     }
 
-    public async Task<PagedResult<GetProjectsWithMembersResponseDto>> GetProjectsWithMembersAsync(
+    public async Task<PagedResult<ProjectWithMembersItem>> GetProjectsWithMembersAsync(
         int pageNumber,
         int pageSize,
         string? search,
@@ -118,24 +126,25 @@ public sealed class ProjectReadRepository : IProjectReadRepository
 
         var projects = await query.Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new GetProjectsWithMembersResponseDto(
+            .Select(p => new ProjectWithMembersItem(
                 p.Id,
                 p.Name,
                 p.Description,
                 p.CreatedAt,
-                p.Tasks.Select(t => new ProjectTaskDetails(
+                p.Tasks.Select(t => new ProjectTaskItem(
                     t.Id,
                     t.Title,
                     t.Description,
                     t.Status
                 )).ToList(),
-                p.Members.Select(m => new ProjectMembersDetails(
+                p.Members.Select(m => new ProjectMemberItem(
                     m.Id,
                     m.UserId,
                     m.Role
                 )).ToList()
             )).ToListAsync(ct);
-        return new PagedResult<GetProjectsWithMembersResponseDto>(
+
+        return new PagedResult<ProjectWithMembersItem>(
             projects,
             pageNumber,
             pageSize,

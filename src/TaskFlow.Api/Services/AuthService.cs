@@ -96,7 +96,7 @@ public class AuthService : IAuthService
         var newAccessToken = _jwtTokenService.GenerateToken(user.Id, user.UserName!, roles);
 
         var lifetime = TimeSpan.FromDays(RefreshTokenDaysValid);
-        var newRefreshToken = new RefreshTokenBodyDto
+        var newRefreshTokenBody = new RefreshTokenBodyDto
         {
             UserId = user.Id,
             Token = RefreshTokenGenerator.Generate(),
@@ -104,17 +104,17 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow
         };
 
-        await _refreshTokenWriteRepository.CreateAsync(newRefreshToken, ct);
+        await _refreshTokenWriteRepository.CreateAsync(newRefreshTokenBody, ct);
 
         storedToken.RevokedAt = DateTime.UtcNow;
-        storedToken.ReplacedByToken = newRefreshToken.Token;
+        storedToken.ReplacedByToken = newRefreshTokenBody.Token;
 
         await _refreshTokenWriteRepository.SaveChangesAsync(ct);
 
         return new AuthResponseDto
         {
             AccessToken = newAccessToken,
-            RefreshToken = newRefreshToken.Token,
+            RefreshToken = newRefreshTokenBody.Token,
             Roles = roles
         };
     }

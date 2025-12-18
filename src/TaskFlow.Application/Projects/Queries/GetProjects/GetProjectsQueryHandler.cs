@@ -5,23 +5,41 @@ using TaskFlow.Application.DTOs;
 namespace TaskFlow.Application.Projects.Queries;
 
 public class GetProjectsQueryHandler
-    : IRequestHandler<GetProjectsQuery, PagedResult<ProjectDto>>
+    : IRequestHandler<GetProjectsQuery, PagedResult<ProjectResponseDto>>
 {
-    private readonly IProjectReadRepository _projects;
+    private readonly IProjectReadRepository _projectReadRepo;
 
-    public GetProjectsQueryHandler(IProjectReadRepository projects)
-        => _projects = projects;
+    public GetProjectsQueryHandler(IProjectReadRepository projectReadRepo)
+    {
+           _projectReadRepo = projectReadRepo;
+    }
 
-    public Task<PagedResult<ProjectDto>> Handle(
+    public async Task<PagedResult<ProjectResponseDto>> Handle(
         GetProjectsQuery request,
         CancellationToken ct)
     {
-        return _projects.GetProjectsAsync(
-            request.PageNumber,
-            request.PageSize,
-            request.Search,
-            request.SortBy,
-            request.SortDirection,
-            ct);
+        var projects = await _projectReadRepo.GetProjectsAsync(
+                request.PageNumber,
+                request.PageSize,
+                request.Search,
+                request.SortBy,
+                request.SortDirection,
+                ct
+            );
+
+        var mappedItems = projects.Items
+               .Select(p => new ProjectResponseDto(
+                    p.Id,
+                    p.Name,
+                    p.Description
+                 ))
+                .ToList();
+
+        return new PagedResult<ProjectResponseDto>(
+            mappedItems,
+            projects.PageNumber,
+            projects.PageSize,
+            projects.TotalCount
+        );
     }
 }

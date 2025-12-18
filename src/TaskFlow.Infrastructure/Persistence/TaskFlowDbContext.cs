@@ -17,9 +17,6 @@ public class TaskFlowDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<Project>().Property(p => p.Name).IsRequired().HasMaxLength(200);
-        modelBuilder.Entity<TaskItem>().Property(t => t.Title).IsRequired().HasMaxLength(200);
-        modelBuilder.Entity<Attachment>().Property(a => a.FileName).IsRequired();
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TaskFlowDbContext).Assembly);
     }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Api.Controllers.Requests;
+using TaskFlow.Api.Controllers.Requests.Files;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.Files;
 
@@ -32,10 +32,14 @@ public class FilesController : ControllerBase
         CancellationToken ct)
     {
         if (request.File is null || request.File.Length == 0)
+        {
             return BadRequest(new { error = "File does not exists or its empty." });
+        }
 
         if (request.File.Length > MaxFileSizeBytes)
+        {
             return BadRequest(new { error = $"File exceeds maximum size {MaxFileSizeBytes / (1024 * 1024)} MB." });
+        }
 
         var contentType = request.File.ContentType ?? "application/octet-stream";
 
@@ -49,7 +53,9 @@ public class FilesController : ControllerBase
             ct);
 
         if (!result.Success)
+        {
             return BadRequest(new { error = result.ErrorMessage });
+        }
 
         return Created(result.Url!, new
         {
@@ -63,18 +69,22 @@ public class FilesController : ControllerBase
     [HttpDelete("{container}/{blobName}")]
     [Authorize]
     public async Task<IActionResult> Delete(
-        string container,
-        string blobName,
+        [FromRoute] string container,
+        [FromRoute] string blobName,
         CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(container))
+        {
             return BadRequest("Invalid container.");
+        }
 
         if (string.IsNullOrWhiteSpace(blobName))
-            return BadRequest("Invalid blob.");
+        {
+            return BadRequest("Invalid blob name.");
+        }
 
         var safeContainer = container.Trim().ToLowerInvariant();
-        var safeBlobName = System.IO.Path.GetFileName(blobName);
+        var safeBlobName = Path.GetFileName(blobName);
 
         var deleted = await _blobService.DeleteAsync(
             safeContainer,
@@ -82,7 +92,9 @@ public class FilesController : ControllerBase
             ct);
 
         if (!deleted)
+        {
             return NotFound(new { error = "Blob has not found." });
+        }
 
         return NoContent();
     }

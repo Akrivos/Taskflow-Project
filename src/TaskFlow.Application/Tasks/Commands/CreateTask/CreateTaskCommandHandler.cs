@@ -5,9 +5,9 @@ using TaskFlow.Domain.Entities;
 namespace TaskFlow.Application.Tasks.Commands;
 public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, Guid>
 {
-    private readonly ITaskRepository _repo;
+    private readonly ITaskWriteRepository _repo;
     private readonly IQueueService _queue;
-    public CreateTaskCommandHandler(ITaskRepository repo, IQueueService queue) { _repo = repo; _queue = queue; }
+    public CreateTaskCommandHandler(ITaskWriteRepository repo, IQueueService queue) { _repo = repo; _queue = queue; }
 
     public async Task<Guid> Handle(CreateTaskCommand request, CancellationToken ct)
     {

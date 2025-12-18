@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Api.Controllers.Requests;
+using TaskFlow.Api.Controllers.Requests.Auth;
 using TaskFlow.Application.Auth.Commands.Login;
 using TaskFlow.Application.Auth.Commands.RefreshTokenCommand;
 using TaskFlow.Application.Auth.Commands.RegisterCommand;

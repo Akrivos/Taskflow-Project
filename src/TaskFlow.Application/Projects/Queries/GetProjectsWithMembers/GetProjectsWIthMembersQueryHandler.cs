@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.DTOs;
 
@@ -12,17 +10,40 @@ public class GetProjectsWIthMembersQueryHandler : IRequestHandler<GetProjectsWit
     {
         _projectReadRepo = projectReadRepo;
     }
-    public async Task<PagedResult<GetProjectsWithMembersResponseDto>> Handle(GetProjectsWithMembersQuery request, CancellationToken ct)
+    public async Task<PagedResult<GetProjectsWithMembersResponseDto>> Handle(
+        GetProjectsWithMembersQuery request,
+        CancellationToken ct
+       )
     {
-        var projects = await _projectReadRepo.GetProjectsWithMembersAsync(
-            request.PageNumber, 
-            request.PageSize, 
-            request.Search, 
-            request.SortBy, 
-            request.SortDirection, 
-            ct
-        );
+        var projectsWithMembers = await _projectReadRepo.GetProjectsWithMembersAsync(
+            request.PageNumber,
+            request.PageSize,
+            request.Search,
+            request.SortBy,
+            request.SortDirection,
+            ct);
 
-        return projects;
+        var mappedItems = projectsWithMembers.Items.Select(p => new GetProjectsWithMembersResponseDto(
+                p.Id,
+                p.Name,
+                p.Description,
+                p.CreatedAt,
+                p.Tasks.Select(t => new ProjectTaskDetails(t.Id, t.Title, t.Description, t.Status)).ToList(),
+                p.Members.Select(m => new ProjectMembersDetails(m.Id, m.UserId, m.Role)).ToList()
+            )).ToList();
+
+        return new PagedResult<GetProjectsWithMembersResponseDto>(
+            projectsWithMembers.Items.Select(p => new GetProjectsWithMembersResponseDto(
+                p.Id,
+                p.Name,
+                p.Description,
+                p.CreatedAt,
+                p.Tasks.Select(t => new ProjectTaskDetails(t.Id, t.Title, t.Description, t.Status)).ToList(),
+                p.Members.Select(m => new ProjectMembersDetails(m.Id, m.UserId, m.Role)).ToList()
+            )).ToList(),
+            projectsWithMembers.PageNumber,
+            projectsWithMembers.PageSize,
+            projectsWithMembers.TotalCount
+        );
     }
 }

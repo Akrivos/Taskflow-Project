@@ -2,4 +2,4 @@
 
 namespace TaskFlow.Application.Comments.Commands.DeleteComment;
 
-public record DeleteCommentCommand(Guid Id) : IRequest<Unit>;
+public sealed record DeleteCommentCommand(Guid Id) : IRequest<Unit>;

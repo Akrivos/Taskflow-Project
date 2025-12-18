@@ -13,12 +13,12 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands;
 
 public class CreateProjectCommandHandlerTests
 {
-    private readonly Mock<IProjectRepository> _projectRepoMock = new();
+    private readonly Mock<IProjectWriteRepository> _projectWriteRepoMock = new();
     private readonly Mock<IQueueService> _queueServiceMock = new();
     private readonly Mock<ICurrentUser> _currentUserMock = new();
 
     private CreateProjectCommandHandler CreateHandler()
-        => new(_currentUserMock.Object, _projectRepoMock.Object, _queueServiceMock.Object);
+        => new(_currentUserMock.Object, _projectWriteRepoMock.Object, _queueServiceMock.Object);
 
     [Fact]
     public async Task Handle_Should_Create_Project_When_User_Is_Admin()
@@ -36,13 +36,13 @@ public class CreateProjectCommandHandlerTests
 
         resultId.Should().NotBe(Guid.Empty);
 
-        _projectRepoMock.Verify(
+        _projectWriteRepoMock.Verify(
             r => r.AddAsync(
                 It.Is<Project>(p => p.Name == cmd.Name && p.Description == cmd.Description),
                 ct),
             Times.Once);
 
-        _projectRepoMock.Verify(r => r.SaveChangesAsync(ct), Times.Once);
+        _projectWriteRepoMock.Verify(r => r.SaveChangesAsync(ct), Times.Once);
 
         _queueServiceMock.Verify(
             q => q.PublishAsync(
@@ -69,7 +69,7 @@ public class CreateProjectCommandHandlerTests
             .ThrowAsync<ForbiddenAccessException>()
             .WithMessage("You dont have access!");
 
-        _projectRepoMock.Verify(r => r.AddAsync(It.IsAny<Project>(), ct), Times.Never);
+        _projectWriteRepoMock.Verify(r => r.AddAsync(It.IsAny<Project>(), ct), Times.Never);
         _queueServiceMock.Verify(q => q.PublishAsync(It.IsAny<string>(), It.IsAny<string>(), ct), Times.Never);
     }
 }

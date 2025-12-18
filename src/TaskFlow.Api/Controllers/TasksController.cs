@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Application.Tasks.Commands;
-using TaskFlow.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using TaskFlow.Api.Controllers.Requests.Tasks;
 
 namespace TaskFlow.Api.Controllers;
 [ApiController]
@@ -12,20 +11,16 @@ namespace TaskFlow.Api.Controllers;
 public class TasksController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly TaskFlowDbContext _db;
-    public TasksController(IMediator mediator, TaskFlowDbContext db) { _mediator = mediator; _db = db; }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateTaskCommand cmd)
-    {
-        var id = await _mediator.Send(cmd);
-        return CreatedAtAction(nameof(Create), new { id }, null);
+    public TasksController(IMediator mediator) 
+    { 
+        _mediator = mediator;  
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateTaskRequest req)
     {
-        var task = await _db.Tasks.Include(t=>t.Attachments).FirstOrDefaultAsync(t => t.Id == id);
-        return task is null ? NotFound() : Ok(new { task.Id, task.Title, task.Description, task.ProjectId, task.Status });
+        var cmd = new CreateTaskCommand(req.Title, req.Description, req.ProjectId);
+        var id = await _mediator.Send(cmd);
+        return CreatedAtAction(nameof(Create), new { id }, null);
     }
 }
