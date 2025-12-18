@@ -12,7 +12,8 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
 {
     public class UpdateProjectCommandHandlerTests
     {
-        private readonly Mock<IProjectRepository> _projectRepoMock = new();
+        private readonly Mock<IProjectReadRepository> _projectReadRepoMock = new();
+        private readonly Mock<IProjectWriteRepository> _projectWriteRepoMock = new();
         private readonly Mock<IQueueService> _queueServiceMock = new();
         private readonly Mock<ICurrentUser> _currentUserMock = new();
 
@@ -20,7 +21,8 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
         {
             return new UpdateProjectCommandHandler(
                 _currentUserMock.Object,
-                _projectRepoMock.Object,
+                _projectWriteRepoMock.Object,
+                _projectReadRepoMock.Object,
                 _queueServiceMock.Object);       
         }
 
@@ -36,12 +38,12 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
 
             var project = new Project("Old Project", "Old Description");
             project.Id = cmd.Id;
-            _projectRepoMock.Setup(p => p.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.Id),  It.IsAny<CancellationToken>()))
+            _projectReadRepoMock.Setup(p => p.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.Id),  It.IsAny<CancellationToken>()))
                 .ReturnsAsync(project);
 
             var result = await handler.Handle(cmd, CancellationToken.None);
             Assert.Equal(cmd.Id, result);
-            _projectRepoMock.Verify(p => p.SaveChangesAsync(CancellationToken.None), Times.Once);
+            _projectWriteRepoMock.Verify(p => p.SaveChangesAsync(CancellationToken.None), Times.Once);
         }
 
         [Fact]

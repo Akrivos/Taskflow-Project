@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure.Persistence.Repositories;
 public sealed class CommentReadRepository : ICommentReadRepository
@@ -9,7 +11,12 @@ public sealed class CommentReadRepository : ICommentReadRepository
     {
         _db = db;
     }
-    public async Task<IEnumerable<GetLatestCommentsResponseDto>> GetLatestsByTaskIdAsync(
+
+    public async Task<Comment?> GetByIdAsync(Guid id, CancellationToken ct)
+    {
+        return await _db.Comment.FindAsync(new { id }, ct);
+    }
+    public async Task<IEnumerable<LatestCommentItem>> GetLatestsByTaskIdAsync(
         Guid taskId,
         int limit,
         string sortDirection,
@@ -25,16 +32,18 @@ public sealed class CommentReadRepository : ICommentReadRepository
             _ => query.OrderByDescending(c => c.CreatedAt)
         };
 
-        return await query.Take(limit).Select(c => new GetLatestCommentsResponseDto(
-            c.Id,
-            c.Content,
-            c.CreatedAt,
-            c.UserId,
-            new TaskDetails(
-                c.TaskItem.Id,
-                c.TaskItem.Title,
-                c.TaskItem.Description
-            )
-        )).ToListAsync(ct);
+        return await query
+            .Take(limit)
+            .Select(c => new LatestCommentItem(
+                c.Id,
+                c.Content,
+                c.CreatedAt,
+                c.UserId,
+                new TaskSummary(
+                    c.TaskItem.Id,
+                    c.TaskItem.Title,
+                    c.TaskItem.Description
+                )
+            )).ToListAsync(ct);
     }
 }

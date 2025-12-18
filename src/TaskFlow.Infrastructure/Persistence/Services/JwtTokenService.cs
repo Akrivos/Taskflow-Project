@@ -22,8 +22,11 @@ public class JwtTokenService : IJwtTokenService
             new Claim(ClaimTypes.NameIdentifier, userId),
             new Claim(ClaimTypes.Name, userName)
         };
+
         foreach (var r in roles)
+        {
             claims.Add(new Claim(ClaimTypes.Role, r));
+        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opts.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -34,6 +37,7 @@ public class JwtTokenService : IJwtTokenService
             expires: DateTime.UtcNow.AddMinutes(_opts.ExpiresMinutes),
             signingCredentials: creds
         );
+
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

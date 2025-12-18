@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Application.Projects.Commands;
 using TaskFlow.Application.Projects.Queries;
 using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
+using TaskFlow.Api.Controllers.Requests.Projects;
 
 namespace TaskFlow.Api.Controllers;
 [ApiController]
@@ -12,7 +13,10 @@ namespace TaskFlow.Api.Controllers;
 public class ProjectsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public ProjectsController(IMediator mediator) => _mediator = mediator;
+    public ProjectsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    } 
 
     [HttpGet]
     public async Task<IActionResult> Get(
@@ -38,25 +42,40 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProjectCommand cmd)
+    public async Task<IActionResult> Create([FromBody] CreateProjectRequest req)
     {
+        var cmd = new CreateProjectCommand(
+            Name: req.Name,
+            Description: req.Description
+        );
+
         var id = await _mediator.Send(cmd);
         return CreatedAtAction(nameof(Create), new { id }, null);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProjectCommand cmd)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProjectRequest req)
     {
-        var command = cmd with { Id = id };
-        await _mediator.Send(command);
+        var cmd = new UpdateProjectCommand(
+            Id: id,
+            Name: req.Name,
+            Description: req.Description
+        );
+
+        await _mediator.Send(cmd);
         return NoContent();
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchProjectCommand cmd)
+    public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchProjectRequest req)
     {
-        var command = cmd with { Id = id };
-        await _mediator.Send(command);
+        var cmd = new PatchProjectCommand(
+            Id: id,
+            Name: req.Name,
+            Description: req.Description
+        );
+
+        await _mediator.Send(cmd);
         return NoContent();
     }
 

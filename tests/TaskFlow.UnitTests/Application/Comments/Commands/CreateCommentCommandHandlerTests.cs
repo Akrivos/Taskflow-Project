@@ -12,14 +12,14 @@ namespace TaskFlow.UnitTests.Application.Comments.Commands
 {
     public class CreateCommentCommandHandlerTests
     {
-        private readonly Mock<ICommentRepository> _mockCommentRepository = new();
-        private readonly Mock<ITaskRepository> _mockTaskRepository = new();
+        private readonly Mock<ICommentWriteRepository> _mockCommentRepository = new();
+        private readonly Mock<ITaskReadRepository> _mockTaskReadRepository = new();
         private readonly Mock<ICurrentUser> _mockCurrentUser = new();
 
         private CreateCommentCommandHandler CreateHandler()  => new CreateCommentCommandHandler(
             _mockCurrentUser.Object,
             _mockCommentRepository.Object,
-            _mockTaskRepository.Object);
+            _mockTaskReadRepository.Object);
 
         [Fact]
         public async Task Handle_Should_Create_Comment_When_User_Is_Authenticated()
@@ -28,7 +28,7 @@ namespace TaskFlow.UnitTests.Application.Comments.Commands
             _mockCurrentUser.Setup(cu => cu.UserId).Returns("test-user-id");
             var taskItem = new TaskItem("Test Task", "Test Description", Guid.NewGuid());
             taskItem.Id = cmd.TaskItemId;
-            _mockTaskRepository.Setup(tr => tr.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.TaskItemId), It.IsAny<CancellationToken>()))
+            _mockTaskReadRepository.Setup(tr => tr.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.TaskItemId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(taskItem);
 
             var handler = CreateHandler();
@@ -47,7 +47,7 @@ namespace TaskFlow.UnitTests.Application.Comments.Commands
         {
             var cmd = new CreateCommentCommand(Guid.NewGuid(), "This is a test comment.");
             _mockCurrentUser.Setup(cu => cu.UserId).Returns("test-user-id");
-            _mockTaskRepository.Setup(tr => tr.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.TaskItemId), It.IsAny<CancellationToken>()))
+            _mockTaskReadRepository.Setup(tr => tr.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.TaskItemId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((TaskItem?)null);
             var handler = CreateHandler();
             await Assert.ThrowsAsync<NotFoundException>(() =>

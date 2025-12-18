@@ -2,9 +2,9 @@
 
 namespace TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 
-public record GetLatestsByTaskIdQuery(
+public sealed record GetLatestsByTaskIdQuery(
     Guid TaskId,
     int? Limit = 10,
     string? SortDirection = "desc",
     string? SortBy = "createdAt"
-) : IRequest<IEnumerable<GetLatestCommentsResponseDto>>;
+) : IRequest<IEnumerable<LatestCommentItem>>;

@@ -1,11 +1,14 @@
 ﻿using TaskFlow.Application.DTOs;
+using TaskFlow.Application.Projects.Queries.GetProjects;
+using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Application.Common.Interfaces
 {
     public interface IProjectReadRepository 
     {
-        Task<PagedResult<ProjectDto>> GetProjectsAsync(
+        Task<Project> GetByIdAsync(Guid id, CancellationToken ct);
+        Task<PagedResult<ProjectListItem>> GetProjectsAsync(
             int pageNumber,
             int pageSize,
             string? search,
@@ -13,7 +16,7 @@ namespace TaskFlow.Application.Common.Interfaces
             string? sortDirection,
             CancellationToken ct);
 
-        Task<PagedResult<GetProjectsWithMembersResponseDto>> GetProjectsWithMembersAsync(
+        Task<PagedResult<ProjectWithMembersItem>> GetProjectsWithMembersAsync(
             int pageNumber,
             int pageSize,
             string? search,

@@ -1,16 +1,15 @@
 ﻿using MediatR;
 using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 using TaskFlow.Application.Common.Interfaces;
-using TaskFlow.Application.DTOs;
 
-public class GetLatestsByTaskIdQueryHandler : IRequestHandler<GetLatestsByTaskIdQuery, IEnumerable<GetLatestCommentsResponseDto>>
+public class GetLatestsByTaskIdQueryHandler : IRequestHandler<GetLatestsByTaskIdQuery, IEnumerable<LatestCommentItem>>
 {
     protected readonly ICommentReadRepository _commentReadRepo;
     public GetLatestsByTaskIdQueryHandler(ICommentReadRepository commentReadRepo)
     {
         _commentReadRepo = commentReadRepo;
     }
-    public async Task<IEnumerable<GetLatestCommentsResponseDto>> Handle(
+    public async Task<IEnumerable<LatestCommentItem>> Handle(
         GetLatestsByTaskIdQuery request,
         CancellationToken ct
         )

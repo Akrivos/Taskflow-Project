@@ -6,27 +6,32 @@ namespace TaskFlow.Application.Comments.Commands.DeleteComment;
 
 public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, Unit>
 {
-    private readonly ICommentRepository _repo;
+    private readonly ICommentReadRepository _commentReadRepo;
+    private readonly ICommentWriteRepository _commentWriteRepo;
     private readonly ICurrentUser _currentUser;
-    public DeleteCommentCommandHandler(ICommentRepository repo, ICurrentUser currentUser)
+    public DeleteCommentCommandHandler(
+        ICommentReadRepository commentReadRepo,
+        ICommentWriteRepository commentWriteRepo,
+        ICurrentUser currentUser)
     {
-        _repo = repo;
+        _commentReadRepo = commentReadRepo;
+        _commentWriteRepo = commentWriteRepo;
         _currentUser = currentUser;
     }
     public async Task<Unit> Handle(DeleteCommentCommand request, CancellationToken ct)
     {
         var hasAllowedRole = !_currentUser.IsInRole("ProjectManager") && !_currentUser.IsInRole("Admin");
-        if (_currentUser.UserId == null || hasAllowedRole)
+        if (_currentUser.UserId is null || hasAllowedRole)
         {
             throw new ForbiddenAccessException("You dont have access!");
         }
-        var comment = await _repo.GetByIdAsync(request.Id, ct);
+        var comment = await _commentReadRepo.GetByIdAsync(request.Id, ct);
         if (comment == null)
         {
             throw new NotFoundException("Comment", request.Id);
         }
-        await _repo.DeleteAsync(comment, ct);
-        await _repo.SaveChangesAsync(ct);
+        await _commentWriteRepo.DeleteAsync(comment, ct);
+        await _commentWriteRepo.SaveChangesAsync(ct);
         return Unit.Value;
     }
 }

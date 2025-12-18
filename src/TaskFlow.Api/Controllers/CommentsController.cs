@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.Api.Controllers.Requests.Comment;
 using TaskFlow.Application.Comments.Commands.CreateComment;
 using TaskFlow.Application.Comments.Commands.DeleteComment;
 using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
@@ -18,8 +19,9 @@ public class CommentsController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = "Comments.Create")]
-    public async Task<IActionResult> Create([FromBody] CreateCommentCommand cmd)
+    public async Task<IActionResult> Create([FromBody] CreateCommentRequest req)
     {
+        var cmd = new CreateCommentCommand(req.TaskId, req.Content);
         var id = await _mediator.Send(cmd);
         return CreatedAtAction(nameof(Create), new { id });
     }
@@ -40,7 +42,6 @@ public class CommentsController : ControllerBase
         [FromQuery] string? sortBy = "createdAt"
        )
     {
-        Console.WriteLine($"Received request to get latest comments for TaskId: {taskId}, Limit: {limit}, SortDirection: {sortDirection}, SortBy: {sortBy}");
         var comments = await _mediator.Send(new GetLatestsByTaskIdQuery(
             TaskId: taskId,
             Limit: limit,

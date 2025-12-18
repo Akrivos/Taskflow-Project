@@ -22,14 +22,14 @@ public static class DependencyInjection
             opts.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 
         // ---------------- Repositories ----------------
-        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IProjectWriteRepository, ProjectWriteRepository>();
         services.AddScoped<IProjectReadRepository, ProjectReadRepository>();
-        services.AddScoped<ITaskRepository, TaskRepository>();
-        services.AddScoped<ICommentRepository, CommentRepository>();
-        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+        services.AddScoped<ITaskWriteRepository, TaskWriteRepository>();
+        services.AddScoped<ITaskReadRepository, TaskReadRepository>();
+        services.AddScoped<ICommentWriteRepository, CommentWriteRepository>();
         services.AddScoped<ICommentReadRepository, CommentReadRepository>();
-        services.AddScoped<IRepository<Project>, ProjectRepository>();
-        services.AddScoped<IRepository<TaskItem>, TaskRepository>();
+        services.AddScoped<IAttachmentWriteRepository, AttachmentWriteRepository>();
+        services.AddScoped<IAttachmentReadRepository, AttachmentReadRepository>();
         services.AddScoped<IRefreshTokenReadRepository, RefreshTokenReadRepository>();
         services.AddScoped<IRefreshTokenWriteRepository, RefreshTokenWriteRepository>();
 

@@ -1,4 +1,4 @@
-﻿namespace TaskFlow.Api.Controllers.Requests;
+﻿namespace TaskFlow.Api.Controllers.Requests.Files;
 
 public class FileUploadRequest
 {
