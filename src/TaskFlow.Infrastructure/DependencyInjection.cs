@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using TaskFlow.Api.Services;
 using TaskFlow.Application.Common.Interfaces;          
-using TaskFlow.Domain.Entities;
 using TaskFlow.Infrastructure.Files;                    
 using TaskFlow.Infrastructure.Messaging;                
 using TaskFlow.Infrastructure.Persistence;              
@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IUserManagerService, UserManagerService>();
         services.AddScoped<IRoleManagerService, RoleManagerService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         // ---------------- Azure Blob ----------------
         services.Configure<BlobRetryOptions>(config.GetSection("AzureBlobStorage:Retry"));

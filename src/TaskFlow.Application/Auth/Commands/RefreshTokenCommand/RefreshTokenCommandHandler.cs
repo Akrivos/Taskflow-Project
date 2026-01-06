@@ -16,7 +16,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
         var refreshToken = await _authService.RefreshTokenAsync(request.RefreshToken, ct);
         if (refreshToken is null)
         {
-            throw new UnauthorizedAccessException("Invalid username or password.");
+            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
         }
 
         return refreshToken;

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Api.Controllers.Requests.Auth;
+using TaskFlow.Api.Controllers.Responses.Auth;
 using TaskFlow.Application.Auth.Commands.Login;
 using TaskFlow.Application.Auth.Commands.RefreshTokenCommand;
 using TaskFlow.Application.Auth.Commands.RegisterCommand;
@@ -41,12 +42,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest refreshToken)
     {
         var result = await _mediator.Send(new RefreshTokenCommand(refreshToken.RefreshToken));
-        return Ok(new
-        {
-            access_token = result.AccessToken,
-            refresh_token = result.RefreshToken,
-            token_type = "Bearer",
-            roles = result.Roles
-        });
+        return Ok(new RefreshTokenResponse(
+             AccessToken: result.AccessToken,
+             RefreshToken: result.RefreshToken,
+             TokenType: "Bearer",
+             Roles: result.Roles.ToList()
+        ));
     }
 }

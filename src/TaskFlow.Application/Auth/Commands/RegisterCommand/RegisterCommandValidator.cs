@@ -1,5 +1,6 @@
 ﻿
 using FluentValidation;
+using TaskFlow.Domain.Enums;
 namespace TaskFlow.Application.Auth.Commands.RegisterCommand;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
@@ -21,6 +22,6 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Matches("[0-9]").WithMessage("Password must contain at least one number.")
             .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
         RuleFor(x => x.Role)
-            .NotEmpty().WithMessage("Role is required.");
+            .IsEnumName(typeof(UserRoles), caseSensitive: false).WithMessage("Invalid role. Allowed roles: User, ProjectManager.");
     }
 }

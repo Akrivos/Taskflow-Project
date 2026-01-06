@@ -14,7 +14,6 @@ using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Infrastructure;
 using TaskFlow.Infrastructure.Identity;
 using TaskFlow.Infrastructure.Persistence;
-using TaskFlow.Infrastructure.Persistence.Services;
 
 // ---------------------------------------------------------
 // Builder & configuration
@@ -45,7 +44,7 @@ ConfigureMiddleware(app);
 // ---------------------------------------------------------
 // Seed data (except in Testing Env)
 // ---------------------------------------------------------
-if (!app.Environment.IsEnvironment("Testing"))
+if (app.Environment.IsEnvironment("Development"))
 {
     await SeedAsync(app.Services);
 }
@@ -96,7 +95,6 @@ public partial class Program
 
         // JWT options & service
         services.Configure<JwtOptions>(config.GetSection("Jwt"));
-        services.AddScoped<IAuthService, AuthService>();
 
         // Authentication (JWT Bearer)
         services

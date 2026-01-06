@@ -4,7 +4,7 @@ using TaskFlow.Application.DTOs;
 using TaskFlow.Domain.Common;
 using TaskFlow.Infrastructure.Identity;
 
-namespace TaskFlow.Api.Services;
+namespace TaskFlow.Infrastructure.Persistence.Services;
 
 public class AuthService : IAuthService
 {

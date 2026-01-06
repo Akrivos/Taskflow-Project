@@ -1,5 +1,5 @@
-﻿using MediatR;
-using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using MediatR;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.DTOs;
 
@@ -19,19 +19,29 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
     }
     public async Task<string> Handle(RegisterCommand request, CancellationToken ct = default)
     {
+        var role = request.Role?.Trim();
 
-        if (!await _roleService.RoleExistsAsync(request.Role))
+        var allowed =
+            string.Equals(role, "User", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(role, "ProjectManager", StringComparison.OrdinalIgnoreCase);
+
+        if (!allowed)
         {
-            throw new ValidationException($"Role '{request.Role}' does not exist.");
+            throw new ValidationException("Invalid role. Allowed roles: User, ProjectManager.");
         }
 
-        var userBody = new UserDto
+        if (!await _roleService.RoleExistsAsync(role))
+        {
+            throw new ValidationException($"Role '{role}' is not configured.");
+        }
+
+        var user = await _userService.CreateAsync(new UserDto
         {
             UserName = request.Username,
             Email = request.Email,
             Password = request.Password
-        };
-        var user = await _userService.CreateAsync(userBody);
+        });
+
         if(user is null)
         {
             throw new ValidationException("User registration failed.");
