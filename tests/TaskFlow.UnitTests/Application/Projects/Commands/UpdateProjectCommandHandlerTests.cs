@@ -54,7 +54,7 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
            _currentUserMock.Setup(cu => cu.UserId).Returns(Guid.NewGuid().ToString());
            _currentUserMock.Setup(cu => cu.IsInRole("Admin")).Returns(false);
            _currentUserMock.Setup(cu => cu.IsInRole("ProjectManager")).Returns(false);
-            await Assert.ThrowsAsync<ForbiddenAccessException>(() => handler.Handle(cmd, CancellationToken.None));
+            await Assert.ThrowsAsync<ForbiddenException>(() => handler.Handle(cmd, CancellationToken.None));
         }
     }
 }

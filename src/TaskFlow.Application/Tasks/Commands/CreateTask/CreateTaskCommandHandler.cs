@@ -7,7 +7,11 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, Guid>
 {
     private readonly ITaskWriteRepository _repo;
     private readonly IQueueService _queue;
-    public CreateTaskCommandHandler(ITaskWriteRepository repo, IQueueService queue) { _repo = repo; _queue = queue; }
+    public CreateTaskCommandHandler(ITaskWriteRepository repo, IQueueService queue) 
+    { 
+        _repo = repo; 
+        _queue = queue; 
+    }
 
     public async Task<Guid> Handle(CreateTaskCommand request, CancellationToken ct)
     {

@@ -20,16 +20,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest req)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest req, CancellationToken ct)
     {
-        var result = await _mediator.Send(new RegisterCommand(req.Username, req.Email, req.Password, req.Role));
+        var result = await _mediator.Send(new RegisterCommand(req.Username, req.Email, req.Password, req.Role), ct);
         return CreatedAtAction(nameof(Register), new { Id = result });
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest req)
+    public async Task<IActionResult> Login([FromBody] LoginRequest req, CancellationToken ct)
     {
-        var result = await _mediator.Send(new LoginCommand(req.UserName, req.Password));
+        var result = await _mediator.Send(new LoginCommand(req.UserName, req.Password), ct);
         return Ok(new { 
             access_token = result.AccessToken, 
             refresh_token = result.RefreshToken, 
@@ -39,9 +39,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest refreshToken)
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest refreshToken, CancellationToken ct)
     {
-        var result = await _mediator.Send(new RefreshTokenCommand(refreshToken.RefreshToken));
+        var result = await _mediator.Send(new RefreshTokenCommand(refreshToken.RefreshToken), ct);
         return Ok(new RefreshTokenResponse(
              AccessToken: result.AccessToken,
              RefreshToken: result.RefreshToken,

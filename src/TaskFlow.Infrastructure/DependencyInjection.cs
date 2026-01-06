@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-using TaskFlow.Api.Services;
 using TaskFlow.Application.Common.Interfaces;          
 using TaskFlow.Infrastructure.Files;                    
 using TaskFlow.Infrastructure.Messaging;                

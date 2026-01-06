@@ -12,23 +12,23 @@ public sealed class CommentReadRepository : ICommentReadRepository
         _db = db;
     }
 
-    public async Task<Comment?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<Comment?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _db.Comment.FindAsync(new { id }, ct);
+        return await _db.Comment.SingleOrDefaultAsync(x => x.Id == id, ct);
     }
     public async Task<IEnumerable<LatestCommentItem>> GetLatestsByTaskIdAsync(
         Guid taskId,
         int limit,
         string sortDirection,
         string sortBy,
-        CancellationToken ct)
+        CancellationToken ct = default)
     {
         var query = _db.Comment.AsNoTracking().Where(c => c.TaskItemId == taskId);
 
-        query = (sortBy.ToLower(), sortDirection.ToLower()) switch
+        query = (sortBy.ToLowerInvariant(), sortDirection.ToLowerInvariant()) switch
         {
-            ("CreatedAt", "asc") => query.OrderBy(c => c.CreatedAt),
-            ("CreatedAt", "desc") => query.OrderByDescending(c => c.CreatedAt),
+            ("createdat", "asc") => query.OrderBy(c => c.CreatedAt),
+            ("createdat", "desc") => query.OrderByDescending(c => c.CreatedAt),
             _ => query.OrderByDescending(c => c.CreatedAt)
         };
 

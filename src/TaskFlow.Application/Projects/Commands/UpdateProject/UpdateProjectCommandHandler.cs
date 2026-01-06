@@ -29,7 +29,7 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         var hasAllowedRole = !_currentUser.IsInRole("ProjectManager") && !_currentUser.IsInRole("Admin");
         if (_currentUser.UserId is null || hasAllowedRole)
         {
-            throw new ForbiddenAccessException("You dont have access!");
+            throw new ForbiddenException("You dont have access!");
         }
 
         var project = await _projectReadRepo.GetByIdAsync(request.Id, ct);

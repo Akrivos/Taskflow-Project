@@ -32,32 +32,32 @@ namespace TaskFlow.Api.Middleware
             var status = ex switch
             {
                 AppValidationException => StatusCodes.Status400BadRequest,
-                ForbiddenAccessException => StatusCodes.Status403Forbidden,
+                ForbiddenException => StatusCodes.Status403Forbidden,
                 ConflictException => StatusCodes.Status409Conflict,
                 NotFoundException => StatusCodes.Status404NotFound,
+                UnauthorizedException => StatusCodes.Status401Unauthorized,
+
                 ValidationException => StatusCodes.Status400BadRequest,
 
-                KeyNotFoundException => StatusCodes.Status404NotFound,
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
 
                 _ => StatusCodes.Status500InternalServerError
             };
 
-            _logger.LogError(ex, "Unhandled exception. TraceId: {TraceId}", traceId);
-
-            var title = ex switch
+            if (status >= 500)
             {
-                AppValidationException => ex.Message ?? "Validation failed.",
-                ValidationException => ex.Message ?? "Validation failed.",
-                ForbiddenAccessException => ex.Message ?? "Forbidden.",
-                ConflictException => ex.Message ?? "Conflict.",
-                NotFoundException => ex.Message ?? "Not Found.",
-                KeyNotFoundException => ex.Message ?? "Resource not found.",
-                UnauthorizedAccessException => ex.Message ?? "Unauthorized.",
-                _ => "Unexpected error"
-            };
+                _logger.LogError(ex, "Unhandled exception. TraceId: {TraceId}", traceId);
+            }
+            else
+            {
+                _logger.LogWarning(ex, "Handled exception. TraceId: {TraceId}", traceId);
+            }
 
-            var errors = ex switch
+            var title = status >= 500
+               ? "An unexpected error occurred."
+               : ex.Message;
+
+            object? errors = ex switch
             {
                 ValidationException fvEx => fvEx.Errors
                     .GroupBy(e => e.PropertyName)
@@ -68,15 +68,19 @@ namespace TaskFlow.Api.Middleware
                 _ => null
             };
 
-            var problem = new
+            var problem = new Dictionary<string, object?>
             {
-                type = $"https://httpstatuses.com/{status}",
-                title,
-                status,
-                traceId,
-                errors
+                ["type"] = $"https://httpstatuses.com/{status}",
+                ["title"] = title,
+                ["status"] = status,
+                ["traceId"] = traceId
             };
 
+            if (errors is not null)
+            {
+                problem["errors"] = errors;
+            }
+                
             context.Response.ContentType = "application/problem+json";
             context.Response.StatusCode = status;
             await context.Response.WriteAsync(JsonSerializer.Serialize(problem));

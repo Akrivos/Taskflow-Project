@@ -22,7 +22,7 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         var hasAllowedRole = !_currentUser.IsInRole("ProjectManager") && !_currentUser.IsInRole("Admin");
         if (_currentUser.UserId is null || hasAllowedRole)
         {
-            throw new ForbiddenAccessException("You dont have access!");
+            throw new ForbiddenException("You dont have access!");
         }
       
         var project = new Project(request.Name, request.Description);

@@ -20,6 +20,7 @@ public class ProjectsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> Get(
+        CancellationToken ct,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? search = null,
@@ -32,29 +33,29 @@ public class ProjectsController : ControllerBase
             Search: search,
             SortBy: sortBy,
             SortDirection: sortDirection
-         )));
+         ), ct));
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var project = await _mediator.Send(new GetProjectQuery(id));
+        var project = await _mediator.Send(new GetProjectQuery(id), ct);
         return Ok(project);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProjectRequest req)
+    public async Task<IActionResult> Create([FromBody] CreateProjectRequest req, CancellationToken ct)
     {
         var cmd = new CreateProjectCommand(
             Name: req.Name,
             Description: req.Description
         );
 
-        var id = await _mediator.Send(cmd);
+        var id = await _mediator.Send(cmd, ct);
         return CreatedAtAction(nameof(Create), new { id }, null);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProjectRequest req)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProjectRequest req, CancellationToken ct)
     {
         var cmd = new UpdateProjectCommand(
             Id: id,
@@ -62,12 +63,12 @@ public class ProjectsController : ControllerBase
             Description: req.Description
         );
 
-        await _mediator.Send(cmd);
+        await _mediator.Send(cmd, ct);
         return NoContent();
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchProjectRequest req)
+    public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] PatchProjectRequest req, CancellationToken ct)
     {
         var cmd = new PatchProjectCommand(
             Id: id,
@@ -75,13 +76,14 @@ public class ProjectsController : ControllerBase
             Description: req.Description
         );
 
-        await _mediator.Send(cmd);
+        await _mediator.Send(cmd, ct);
         return NoContent();
     }
 
     [HttpGet("with-members")]
     [Authorize(Policy = "Projects.Read")]
     public async Task<IActionResult> GetProjectsWithMembers(
+        CancellationToken ct,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? search = null,
@@ -95,7 +97,7 @@ public class ProjectsController : ControllerBase
             Search: search,
             SortBy: sortBy,
             SortDirection: sortDirection
-          ));
+          ), ct);
         return Ok(projects);
     }
 }

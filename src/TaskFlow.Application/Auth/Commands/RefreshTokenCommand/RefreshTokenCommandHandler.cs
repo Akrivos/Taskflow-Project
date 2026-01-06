@@ -1,4 +1,5 @@
 using MediatR;
+using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.DTOs;
 
@@ -16,7 +17,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
         var refreshToken = await _authService.RefreshTokenAsync(request.RefreshToken, ct);
         if (refreshToken is null)
         {
-            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+            throw new UnauthorizedException("Invalid or expired refresh token.");
         }
 
         return refreshToken;

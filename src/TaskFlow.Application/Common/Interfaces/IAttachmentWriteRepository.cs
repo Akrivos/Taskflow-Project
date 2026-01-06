@@ -5,7 +5,7 @@ namespace TaskFlow.Application.Common.Interfaces
 {
     public interface IAttachmentWriteRepository
     {
-        Task AddAsync(Attachment entity, CancellationToken ct);
-        Task SaveChangesAsync(CancellationToken ct);
+        Task AddAsync(Attachment entity, CancellationToken ct = default);
+        Task SaveChangesAsync(CancellationToken ct = default);
     }
 }

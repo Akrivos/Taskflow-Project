@@ -12,10 +12,10 @@ public sealed class ProjectWriteRepository : IProjectWriteRepository
         _db = db;
     } 
 
-    public async Task AddAsync(Project entity, CancellationToken ct)
+    public async Task AddAsync(Project entity, CancellationToken ct = default)
     {
         await _db.Projects.AddAsync(entity, ct);
     }
 
-    public Task SaveChangesAsync(CancellationToken ct) => _db.SaveChangesAsync(ct);
+    public Task SaveChangesAsync(CancellationToken ct = default) => _db.SaveChangesAsync(ct);
 }

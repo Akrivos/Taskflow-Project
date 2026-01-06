@@ -15,9 +15,9 @@ public sealed class ProjectReadRepository : IProjectReadRepository
         _db = db;
     }
 
-    public async Task<Project> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<Project> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _db.Projects.FindAsync(new { id }, ct);
+        return await _db.Projects.SingleOrDefaultAsync(x => x.Id == id, ct);
     }
     public async Task<PagedResult<ProjectListItem>> GetProjectsAsync(
         int pageNumber,
@@ -25,7 +25,7 @@ public sealed class ProjectReadRepository : IProjectReadRepository
         string? search,
         string? sortBy,
         string? sortDirection,
-        CancellationToken ct)
+        CancellationToken ct = default)
     {
         if (pageNumber < 1) pageNumber = 1;
 
@@ -51,7 +51,7 @@ public sealed class ProjectReadRepository : IProjectReadRepository
             ? "asc"
             : sortDirection.Trim().ToLowerInvariant();
 
-        query = (sortByNorm, sortDirNorm) switch
+        query = (sortByNorm.ToLowerInvariant(), sortDirNorm.ToLowerInvariant()) switch
         {
             ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
             ("createdat", _) => query.OrderBy(p => p.CreatedAt),
@@ -87,7 +87,7 @@ public sealed class ProjectReadRepository : IProjectReadRepository
         string? search,
         string? sortBy,
         string? sortDirection,
-        CancellationToken ct)
+        CancellationToken ct = default)
     {
         if (pageNumber < 1) pageNumber = 1;
 

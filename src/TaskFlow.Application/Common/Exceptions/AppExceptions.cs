@@ -26,9 +26,9 @@
         }
     }
 
-    public sealed class ForbiddenAccessException : AppException
+    public sealed class ForbiddenException : AppException
     {
-        public ForbiddenAccessException(string? message = null)
+        public ForbiddenException(string? message = null)
             : base(message ?? "Access denied.")
         {
         }
@@ -37,6 +37,14 @@
     public sealed class ConflictException : AppException
     {
         public ConflictException(string message) : base(message)
+        {
+        }
+    }
+
+    public sealed class UnauthorizedException : AppException
+    {
+        public UnauthorizedException(string? message = null)
+            : base(message ?? "Unauthorized.")
         {
         }
     }

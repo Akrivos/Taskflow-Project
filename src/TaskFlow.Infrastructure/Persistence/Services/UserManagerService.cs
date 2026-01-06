@@ -14,7 +14,7 @@ public class UserManagerService : IUserManagerService
         _userManager = userManager;
     }
 
-    public async Task<UserResponseDto> CreateAsync(UserDto userDto)
+    public async Task<UserResponseDto> CreateAsync(UserDto userDto, CancellationToken ct = default)
     {
         var user = new ApplicationUser
         {
@@ -34,7 +34,7 @@ public class UserManagerService : IUserManagerService
         };
     }
 
-    public async Task<UserResponseDto> AddToRoleAsync(string userId, string roleName)
+    public async Task<UserResponseDto> AddToRoleAsync(string userId, string roleName, CancellationToken ct = default)
     {
         var user = await _userManager.FindByIdAsync(userId!);
         if (user == null)
@@ -55,7 +55,7 @@ public class UserManagerService : IUserManagerService
         };
     }
 
-    public async Task<UserResponseDto> FindByNameAsync(string username)
+    public async Task<UserResponseDto> FindByNameAsync(string username, CancellationToken ct = default)
     {
         var user = await _userManager.FindByNameAsync(username);
         if (user is null)
@@ -70,7 +70,7 @@ public class UserManagerService : IUserManagerService
         };
     }
 
-    public async Task<IList<string>> GetRolesAsync(string userId)
+    public async Task<IList<string>> GetRolesAsync(string userId, CancellationToken ct = default)
     {
         if(userId is null)
         {

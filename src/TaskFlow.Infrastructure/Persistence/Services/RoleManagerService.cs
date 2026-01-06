@@ -12,7 +12,7 @@ public class RoleManagerService : IRoleManagerService
         _roleManager = roleManager;
     }
 
-    public async Task<bool> RoleExistsAsync(string roleName)
+    public async Task<bool> RoleExistsAsync(string roleName,CancellationToken ct = default)
     {
         return await _roleManager.RoleExistsAsync(roleName);
     }

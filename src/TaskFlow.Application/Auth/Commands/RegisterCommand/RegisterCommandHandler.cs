@@ -17,7 +17,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
         _userService = userService;
         _roleService = roleService;
     }
-    public async Task<string> Handle(RegisterCommand request, CancellationToken ct = default)
+    public async Task<string> Handle(RegisterCommand request, CancellationToken ct)
     {
         var role = request.Role?.Trim();
 
@@ -30,7 +30,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
             throw new ValidationException("Invalid role. Allowed roles: User, ProjectManager.");
         }
 
-        if (!await _roleService.RoleExistsAsync(role))
+        if (!await _roleService.RoleExistsAsync(role!, ct))
         {
             throw new ValidationException($"Role '{role}' is not configured.");
         }
@@ -40,14 +40,14 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
             UserName = request.Username,
             Email = request.Email,
             Password = request.Password
-        });
+        }, ct);
 
         if(user is null)
         {
             throw new ValidationException("User registration failed.");
         }
 
-        var userWithRole = await _userService.AddToRoleAsync(user.Id!, request.Role);
+        var userWithRole = await _userService.AddToRoleAsync(user.Id!, request.Role!, ct);
         if(userWithRole is null) {
             throw  new ValidationException("Assigning role to user failed.");
         }

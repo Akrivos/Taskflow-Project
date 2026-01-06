@@ -19,24 +19,25 @@ public class CommentsController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = "Comments.Create")]
-    public async Task<IActionResult> Create([FromBody] CreateCommentRequest req)
+    public async Task<IActionResult> Create([FromBody] CreateCommentRequest req, CancellationToken ct)
     {
         var cmd = new CreateCommentCommand(req.TaskId, req.Content);
-        var id = await _mediator.Send(cmd);
+        var id = await _mediator.Send(cmd, ct);
         return CreatedAtAction(nameof(Create), new { id });
     }
 
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = "Comments.Delete")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
     {
-        await _mediator.Send(new DeleteCommentCommand(id));
+        await _mediator.Send(new DeleteCommentCommand(id), ct);
         return NoContent();
     }
 
     [HttpGet("task/{taskId:guid}/latests")]
     public async Task<IActionResult> GetLatestsByTaskId(
-        [FromRoute] Guid taskId, 
+        [FromRoute] Guid taskId,
+        CancellationToken ct,
         [FromQuery] int? limit = 10, 
         [FromQuery] string? sortDirection = "desc",
         [FromQuery] string? sortBy = "createdAt"
@@ -47,7 +48,7 @@ public class CommentsController : ControllerBase
             Limit: limit,
             SortDirection: sortDirection,
             SortBy: sortBy
-         ));
+         ), ct);
         return Ok(comments);
     }
 }

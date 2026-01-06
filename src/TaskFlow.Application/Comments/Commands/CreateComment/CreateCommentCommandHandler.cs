@@ -28,7 +28,7 @@ public class CreateCommentCommandHandler: IRequestHandler<CreateCommentCommand, 
         var userId = _user.UserId;
         if (string.IsNullOrWhiteSpace(userId))
         {
-            throw new UnauthorizedAccessException("User must be authenticated to create a comment.");
+            throw new UnauthorizedException("User must be authenticated to create a comment.");
         }
 
         var taskItem = await _taskReadRepo.GetByIdAsync(taskId, ct);
