@@ -21,9 +21,9 @@ public class CommentsController : ControllerBase
     [Authorize(Policy = "Comments.Create")]
     public async Task<IActionResult> Create([FromBody] CreateCommentRequest req, CancellationToken ct)
     {
-        var cmd = new CreateCommentCommand(req.TaskId, req.Content);
+        var cmd = new CreateCommentCommand(req.TaskItemId, req.Content);
         var id = await _mediator.Send(cmd, ct);
-        return CreatedAtAction(nameof(Create), new { id });
+        return CreatedAtAction(nameof(Create), new { id }, new { id });
     }
 
     [HttpDelete("{id:guid}")]

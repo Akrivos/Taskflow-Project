@@ -51,7 +51,7 @@ public class ProjectsController : ControllerBase
         );
 
         var id = await _mediator.Send(cmd, ct);
-        return CreatedAtAction(nameof(Create), new { id }, null);
+        return CreatedAtAction(nameof(Create), new { id }, new { id });
     }
 
     [HttpPut("{id:guid}")]
@@ -81,7 +81,6 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpGet("with-members")]
-    [Authorize(Policy = "Projects.Read")]
     public async Task<IActionResult> GetProjectsWithMembers(
         CancellationToken ct,
         [FromQuery] int pageNumber = 1,

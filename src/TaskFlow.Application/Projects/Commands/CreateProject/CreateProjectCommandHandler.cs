@@ -30,7 +30,5 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         await _projectWriteRepo.SaveChangesAsync(ct);
         await _queue.PublishAsync("project-created", JsonSerializer.Serialize(new { project.Id, project.Name }), ct);
         return project.Id;
-      
-        
     }
 }

@@ -21,6 +21,6 @@ public class TasksController : ControllerBase
     {
         var cmd = new CreateTaskCommand(req.Title, req.Description, req.ProjectId);
         var id = await _mediator.Send(cmd, ct);
-        return CreatedAtAction(nameof(Create), new { id }, null);
+        return CreatedAtAction(nameof(Create), new { id }, new { id });
     }
 }

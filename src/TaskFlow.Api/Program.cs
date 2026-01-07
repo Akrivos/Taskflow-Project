@@ -129,7 +129,7 @@ public partial class Program
             options.AddPolicy("AnyUser", p => p.RequireRole("User", "ProjectManager", "Admin"));
 
             options.AddPolicy("Projects.Create", p => p.RequireRole("ProjectManager", "Admin"));
-            options.AddPolicy("Projects.Read", p => p.RequireRole("Admin"));
+            options.AddPolicy("Projects.Read", p => p.RequireRole("ProjectManager", "Admin"));
 
             options.AddPolicy("Tasks.Create", p => p.RequireRole("User", "ProjectManager", "Admin"));
             options.AddPolicy("Tasks.Read", p => p.RequireRole("User", "ProjectManager", "Admin"));
