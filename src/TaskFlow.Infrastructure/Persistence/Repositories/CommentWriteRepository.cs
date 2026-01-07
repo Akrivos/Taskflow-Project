@@ -12,17 +12,17 @@ public sealed class CommentWriteRepository : ICommentWriteRepository
         _db = db;
     } 
 
-    public async Task AddAsync(Comment entity, CancellationToken ct)
+    public async Task AddAsync(Comment entity, CancellationToken ct = default)
     {
         await _db.Comment.AddAsync(entity, ct);
     }
 
-    public Task SaveChangesAsync(CancellationToken ct)
+    public Task SaveChangesAsync(CancellationToken ct = default)
     {
         return _db.SaveChangesAsync(ct);
     }    
 
-    public Task DeleteAsync(Comment entity, CancellationToken ct)
+    public Task DeleteAsync(Comment entity, CancellationToken ct = default)
     {
         _db.Comment.Remove(entity);
         return Task.CompletedTask;

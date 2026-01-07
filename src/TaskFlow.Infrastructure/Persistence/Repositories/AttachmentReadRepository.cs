@@ -12,7 +12,7 @@ public sealed class AttachmentReadRepository : IAttachmentReadRepository
         _db = db;
     }
 
-    public async Task<Attachment?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<Attachment?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await _db.Attachments.FindAsync(new { id }, ct);
     }

@@ -66,7 +66,7 @@ public class CreateProjectCommandHandlerTests
         var act = async () => await handler.Handle(cmd, ct);
 
         await act.Should()
-            .ThrowAsync<ForbiddenAccessException>()
+            .ThrowAsync<ForbiddenException>()
             .WithMessage("You dont have access!");
 
         _projectWriteRepoMock.Verify(r => r.AddAsync(It.IsAny<Project>(), ct), Times.Never);

@@ -22,7 +22,7 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         var hasAllowedRole = !_currentUser.IsInRole("ProjectManager") && !_currentUser.IsInRole("Admin");
         if (_currentUser.UserId is null || hasAllowedRole)
         {
-            throw new ForbiddenAccessException("You dont have access!");
+            throw new ForbiddenException("You dont have access!");
         }
       
         var project = new Project(request.Name, request.Description);
@@ -30,7 +30,5 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         await _projectWriteRepo.SaveChangesAsync(ct);
         await _queue.PublishAsync("project-created", JsonSerializer.Serialize(new { project.Id, project.Name }), ct);
         return project.Id;
-      
-        
     }
 }

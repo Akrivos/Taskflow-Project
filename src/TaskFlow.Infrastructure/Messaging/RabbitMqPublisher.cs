@@ -12,7 +12,7 @@ namespace TaskFlow.Infrastructure.Messaging
             _connection = factory.CreateConnection();
         }
 
-        public Task PublishAsync(string queue, string message, CancellationToken ct)
+        public Task PublishAsync(string queue, string message, CancellationToken ct = default)
         {
             using var channel = _connection.CreateModel();
 

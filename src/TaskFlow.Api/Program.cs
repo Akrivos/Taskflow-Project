@@ -10,11 +10,9 @@ using TaskFlow.Api.Middleware;
 using TaskFlow.Api.Services;
 using TaskFlow.Application;
 using TaskFlow.Application.Common.Configuration;
-using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Infrastructure;
 using TaskFlow.Infrastructure.Identity;
 using TaskFlow.Infrastructure.Persistence;
-using TaskFlow.Infrastructure.Persistence.Services;
 
 // ---------------------------------------------------------
 // Builder & configuration
@@ -45,7 +43,7 @@ ConfigureMiddleware(app);
 // ---------------------------------------------------------
 // Seed data (except in Testing Env)
 // ---------------------------------------------------------
-if (!app.Environment.IsEnvironment("Testing"))
+if (app.Environment.IsEnvironment("Development"))
 {
     await SeedAsync(app.Services);
 }
@@ -96,7 +94,6 @@ public partial class Program
 
         // JWT options & service
         services.Configure<JwtOptions>(config.GetSection("Jwt"));
-        services.AddScoped<IAuthService, AuthService>();
 
         // Authentication (JWT Bearer)
         services
@@ -132,7 +129,7 @@ public partial class Program
             options.AddPolicy("AnyUser", p => p.RequireRole("User", "ProjectManager", "Admin"));
 
             options.AddPolicy("Projects.Create", p => p.RequireRole("ProjectManager", "Admin"));
-            options.AddPolicy("Projects.Read", p => p.RequireRole("Admin"));
+            options.AddPolicy("Projects.Read", p => p.RequireRole("ProjectManager", "Admin"));
 
             options.AddPolicy("Tasks.Create", p => p.RequireRole("User", "ProjectManager", "Admin"));
             options.AddPolicy("Tasks.Read", p => p.RequireRole("User", "ProjectManager", "Admin"));

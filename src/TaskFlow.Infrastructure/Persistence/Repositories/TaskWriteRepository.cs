@@ -12,12 +12,12 @@ public sealed class TaskWriteRepository : ITaskWriteRepository
         _db = db;
     }
 
-    public async Task AddAsync(TaskItem entity, CancellationToken ct)
+    public async Task AddAsync(TaskItem entity, CancellationToken ct = default)
     {
         await _db.Tasks.AddAsync(entity, ct);
     }
 
-    public Task SaveChangesAsync(CancellationToken ct)
+    public Task SaveChangesAsync(CancellationToken ct = default)
     {
        return _db.SaveChangesAsync(ct);
     }

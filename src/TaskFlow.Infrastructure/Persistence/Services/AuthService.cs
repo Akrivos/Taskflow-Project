@@ -4,7 +4,7 @@ using TaskFlow.Application.DTOs;
 using TaskFlow.Domain.Common;
 using TaskFlow.Infrastructure.Identity;
 
-namespace TaskFlow.Api.Services;
+namespace TaskFlow.Infrastructure.Persistence.Services;
 
 public class AuthService : IAuthService
 {
@@ -30,7 +30,7 @@ public class AuthService : IAuthService
         _refreshTokenReadRepository = refreshTokenReadRepository;
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(string username, string password)
+    public async Task<AuthResponseDto?> LoginAsync(string username, string password, CancellationToken ct = default)
     {
         var user = await _userManager.FindByNameAsync(username);
         if (user is null)
@@ -59,9 +59,9 @@ public class AuthService : IAuthService
             ExpiresAt = DateTime.UtcNow.Add(refreshTokenLifetime),
             CreatedAt = DateTime.UtcNow
         };
-        var refreshToken = await _refreshTokenWriteRepository.CreateAsync(refreshTokenBody);
+        var refreshToken = await _refreshTokenWriteRepository.CreateAsync(refreshTokenBody, ct);
 
-        await _refreshTokenWriteRepository.SaveChangesAsync();
+        await _refreshTokenWriteRepository.SaveChangesAsync(ct);
 
         return new AuthResponseDto
         {

@@ -14,6 +14,8 @@ public class RefreshTokenReadRepository : IRefreshTokenReadRepository
 
     public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken ct = default)
     {
-        return await _db.RefreshTokens.SingleOrDefaultAsync(x => x.Token == token);
+        return await _db.RefreshTokens
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Token == token, ct);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.DTOs;
 
@@ -14,12 +15,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
     {
         _authService = authService;
     }
-    public async Task<AuthResponseDto> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<AuthResponseDto> Handle(LoginCommand request, CancellationToken ct)
     {
-        var authResponse = await _authService.LoginAsync(request.UserName, request.Password);
+        var authResponse = await _authService.LoginAsync(request.UserName, request.Password, ct);
         if(authResponse is null)
         {
-            throw new UnauthorizedAccessException("Invalid username or password.");
+            throw new UnauthorizedException("Invalid username or password.");
         }
         
         return authResponse;

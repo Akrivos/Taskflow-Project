@@ -7,21 +7,21 @@ namespace TaskFlow.Infrastructure.Persistence.Services;
 
 public class UserManagerService : IUserManagerService
 {
-    private readonly UserManager<ApplicationUser> _users;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UserManagerService(UserManager<ApplicationUser> users)
+    public UserManagerService(UserManager<ApplicationUser> userManager)
     {
-        _users = users;
+        _userManager = userManager;
     }
 
-    public async Task<UserResponseDto> CreateAsync(UserDto userDto)
+    public async Task<UserResponseDto> CreateAsync(UserDto userDto, CancellationToken ct = default)
     {
         var user = new ApplicationUser
         {
             UserName = userDto.UserName,
             Email = userDto.Email
         };
-        var result = await _users.CreateAsync(user, userDto.Password!);
+        var result = await _userManager.CreateAsync(user, userDto.Password!);
         if (!result.Succeeded)
         {
             return null;
@@ -34,14 +34,14 @@ public class UserManagerService : IUserManagerService
         };
     }
 
-    public async Task<UserResponseDto> AddToRoleAsync(string userId, string roleName)
+    public async Task<UserResponseDto> AddToRoleAsync(string userId, string roleName, CancellationToken ct = default)
     {
-        var user = await _users.FindByIdAsync(userId!);
+        var user = await _userManager.FindByIdAsync(userId!);
         if (user == null)
         {
             return null;
         }
-        var result = await _users.AddToRoleAsync(user, roleName);
+        var result = await _userManager.AddToRoleAsync(user, roleName);
         if (!result.Succeeded)
         {
             return null;
@@ -55,9 +55,9 @@ public class UserManagerService : IUserManagerService
         };
     }
 
-    public async Task<UserResponseDto> FindByNameAsync(string username)
+    public async Task<UserResponseDto> FindByNameAsync(string username, CancellationToken ct = default)
     {
-        var user = await _users.FindByNameAsync(username);
+        var user = await _userManager.FindByNameAsync(username);
         if (user is null)
         {
             return null;
@@ -70,17 +70,17 @@ public class UserManagerService : IUserManagerService
         };
     }
 
-    public async Task<IList<string>> GetRolesAsync(string userId)
+    public async Task<IList<string>> GetRolesAsync(string userId, CancellationToken ct = default)
     {
         if(userId is null)
         {
             return new List<string>();
         }
-        var user = await _users.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
         {
             return new List<string>();
         }
-        return await _users.GetRolesAsync(user);
+        return await _userManager.GetRolesAsync(user);
     }
 }

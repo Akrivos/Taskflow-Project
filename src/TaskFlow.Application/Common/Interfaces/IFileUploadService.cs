@@ -10,5 +10,5 @@ public interface IFileUploadService
         Stream fileStream,
         string originalFileName,
         string contentType,
-        CancellationToken ct);
+        CancellationToken ct = default);
 }

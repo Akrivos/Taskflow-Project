@@ -17,10 +17,10 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateTaskRequest req)
+    public async Task<IActionResult> Create([FromBody] CreateTaskRequest req, CancellationToken ct)
     {
         var cmd = new CreateTaskCommand(req.Title, req.Description, req.ProjectId);
-        var id = await _mediator.Send(cmd);
-        return CreatedAtAction(nameof(Create), new { id }, null);
+        var id = await _mediator.Send(cmd, ct);
+        return CreatedAtAction(nameof(Create), new { id }, new { id });
     }
 }

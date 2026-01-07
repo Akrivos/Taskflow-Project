@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
 
+namespace TaskFlow.Api.Services;
+
 public class CurrentUser : ICurrentUser
 {
     private readonly IHttpContextAccessor _contextAccessor;

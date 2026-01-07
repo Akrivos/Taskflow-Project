@@ -2,5 +2,5 @@
 
 public interface IRoleManagerService
 {
-    Task<bool> RoleExistsAsync(string roleName);
+    Task<bool> RoleExistsAsync(string roleName, CancellationToken ct = default);
 }

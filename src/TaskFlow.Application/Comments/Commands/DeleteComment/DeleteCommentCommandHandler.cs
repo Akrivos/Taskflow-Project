@@ -23,7 +23,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         var hasAllowedRole = !_currentUser.IsInRole("ProjectManager") && !_currentUser.IsInRole("Admin");
         if (_currentUser.UserId is null || hasAllowedRole)
         {
-            throw new ForbiddenAccessException("You dont have access!");
+            throw new ForbiddenException("You dont have access!");
         }
         var comment = await _commentReadRepo.GetByIdAsync(request.Id, ct);
         if (comment == null)
