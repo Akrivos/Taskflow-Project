@@ -148,9 +148,6 @@ public partial class Program
             options.AddPolicy("Comments.Delete", p => p.RequireRole("ProjectManager", "Admin"));
         });
 
-        //services.AddProblemDetails();
-        //services.AddTransient<ExceptionHandlingMiddleware>();
-
         services.AddControllers();
         services.AddFluentValidationAutoValidation();
 
