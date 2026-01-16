@@ -2,6 +2,7 @@ using MediatR;
 using System.Text.Json;
 using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Messages;
 
 namespace TaskFlow.Application.Projects.Commands;
 
@@ -41,7 +42,7 @@ public class PatchProjectCommandHandler : IRequestHandler<PatchProjectCommand, G
         project.PartialUpdate(request.Name, request.Description);
 
         await _projectWriteRepo.SaveChangesAsync(ct);
-        await _queue.PublishAsync("project-partial-update", JsonSerializer.Serialize(new { project.Id, project.Name, project.Description }), ct);
+        await _queue.PublishAsync(Topics.ProjectPartialUpdate, JsonSerializer.Serialize(new { project.Id, project.Name, project.Description }), ct);
         return project.Id;
     }
 }

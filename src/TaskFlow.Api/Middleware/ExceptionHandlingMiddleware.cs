@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using FluentValidation;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Application.Common.Exceptions;
 
 namespace TaskFlow.Api.Middleware
@@ -83,7 +83,17 @@ namespace TaskFlow.Api.Middleware
                 
             context.Response.ContentType = "application/problem+json";
             context.Response.StatusCode = status;
-            await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Type = (string?)problem["type"],
+                Title = (string?)problem["title"],
+                Status = (int?)problem["status"],
+                Extensions =
+                {
+                    ["traceId"] = problem["traceId"],
+                    ["errors"] = problem.ContainsKey("errors") ? problem["errors"] : null
+                }
+            });
         }
     }
 }

@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Messages;
 using TaskFlow.Application.Projects.Commands;
 using TaskFlow.Domain.Entities;
 using Xunit;
@@ -46,7 +47,7 @@ public class CreateProjectCommandHandlerTests
 
         _queueServiceMock.Verify(
             q => q.PublishAsync(
-                "project-created",
+                Topics.ProjectCreated,
                 It.Is<string>(payload => payload.Contains(cmd.Name)),
                 ct),
             Times.Once);

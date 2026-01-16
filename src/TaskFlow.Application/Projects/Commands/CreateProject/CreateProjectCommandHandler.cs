@@ -2,6 +2,7 @@ using MediatR;
 using System.Text.Json;
 using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Messages;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Application.Projects.Commands;
@@ -28,7 +29,7 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         var project = new Project(request.Name, request.Description);
         await _projectWriteRepo.AddAsync(project, ct);
         await _projectWriteRepo.SaveChangesAsync(ct);
-        await _queue.PublishAsync("project-created", JsonSerializer.Serialize(new { project.Id, project.Name }), ct);
+        await _queue.PublishAsync(Topics.ProjectCreated, JsonSerializer.Serialize(new { project.Id, project.Name }), ct);
         return project.Id;
     }
 }

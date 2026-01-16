@@ -2,14 +2,14 @@ using FluentValidation;
 using MediatR;
 using TaskFlow.Application.Common.Exceptions;
 
-namespace TaskFlow.Application.Common.Behaviors;
+namespace TaskFlow.Application.Common.Behaviours;
 
-public sealed class ValidationBehavior<TRequest, TResponse>
+public sealed class ValidationBehaviour<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+    public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators)
         => _validators = validators;
 
     public async Task<TResponse> Handle(
