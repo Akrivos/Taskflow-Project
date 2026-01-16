@@ -17,6 +17,9 @@ public class CurrentUser : ICurrentUser
     public string? Email =>
         _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value;
 
+    public string? UserName =>
+        _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
+
     public IReadOnlyList<string>? Roles =>
         _contextAccessor.HttpContext?.User
             .FindAll(ClaimTypes.Role)
