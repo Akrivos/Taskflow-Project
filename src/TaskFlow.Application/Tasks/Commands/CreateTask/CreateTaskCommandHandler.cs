@@ -1,5 +1,6 @@
 using MediatR;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Messages;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Application.Tasks.Commands;
@@ -18,7 +19,7 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, Guid>
         var entity = new TaskItem(request.Title, request.Description, request.ProjectId);
         await _repo.AddAsync(entity, ct);
         await _repo.SaveChangesAsync(ct);
-        await _queue.PublishAsync("task-created", System.Text.Json.JsonSerializer.Serialize(new { entity.Id, entity.Title }), ct);
+        await _queue.PublishAsync(Topics.TaskCreated, System.Text.Json.JsonSerializer.Serialize(new { entity.Id, entity.Title }), ct);
         return entity.Id;
     }
 }

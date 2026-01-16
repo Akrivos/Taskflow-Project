@@ -93,7 +93,14 @@ public partial class Program
             .AddSignInManager();
 
         // JWT options & service
-        services.Configure<JwtOptions>(config.GetSection("Jwt"));
+        services.AddOptions<JwtOptions>()
+          .Bind(config.GetSection("Jwt"))
+          .Validate(o => !string.IsNullOrWhiteSpace(o.Issuer), "Jwt:Issuer is required")
+          .Validate(o => !string.IsNullOrWhiteSpace(o.Audience), "Jwt:Audience is required")
+          .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "Jwt:Key is required")
+          .Validate(o => o.Key.Length >= 32, "Jwt:Key must be at least 32 chars")
+          .Validate(o => o.ExpiresMinutes > 0, "Jwt:ExpiresMinutes must be > 0")
+          .ValidateOnStart();
 
         // Authentication (JWT Bearer)
         services

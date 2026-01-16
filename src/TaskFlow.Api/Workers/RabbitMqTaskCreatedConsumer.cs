@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using TaskFlow.Application.Common.Messages;
 
 namespace TaskFlow.Api.Workers;
 public class RabbitMqTaskCreatedConsumer : BackgroundService
@@ -19,13 +20,13 @@ public class RabbitMqTaskCreatedConsumer : BackgroundService
     {
         var factory = new ConnectionFactory
         {
-            HostName = _config["RabbitMQ:HostName"] ?? "localhost",
-            UserName = _config["RabbitMQ:UserName"] ?? "guest",
-            Password = _config["RabbitMQ:Password"] ?? "guest"
+            HostName = _config["RabbitMQ:HostName"],
+            UserName = _config["RabbitMQ:UserName"],
+            Password = _config["RabbitMQ:Password"]
         };
         _conn = factory.CreateConnection();
         _channel = _conn.CreateModel();
-        _channel.QueueDeclare("task-created", durable: true, exclusive: false, autoDelete: false);
+        _channel.QueueDeclare(Topics.TaskCreated, durable: true, exclusive: false, autoDelete: false);
         return base.StartAsync(cancellationToken);
     }
 
@@ -39,11 +40,11 @@ public class RabbitMqTaskCreatedConsumer : BackgroundService
         {
             var body = ea.Body.ToArray();
             var msg = Encoding.UTF8.GetString(body);
-            _logger.LogInformation("Received from 'task-created': {Message}", msg);
+            _logger.LogInformation("Received from {Topic}: {Message}", Topics.TaskCreated, msg);
             _channel?.BasicAck(ea.DeliveryTag, multiple: false);
         };
 
-        _channel.BasicConsume("task-created", autoAck: false, consumer: consumer);
+        _channel.BasicConsume(Topics.TaskCreated, autoAck: false, consumer: consumer);
 
         // Κρατάμε ζωντανό το background service μέχρι να ζητηθεί cancellation
         return Task.Delay(Timeout.Infinite, stoppingToken);
