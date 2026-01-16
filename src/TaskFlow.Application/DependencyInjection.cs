@@ -18,7 +18,10 @@ public static class DependencyInjection
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenRequestPreProcessor(typeof(LoggingBehaviour<>));
+            cfg.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
+            cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
         });
 
         services.AddScoped<IFileUploadService, FileUploadService>();
