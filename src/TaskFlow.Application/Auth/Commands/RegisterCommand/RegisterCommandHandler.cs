@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using TaskFlow.Application.Common.Interfaces;
-using TaskFlow.Application.DTOs;
 
 namespace TaskFlow.Application.Auth.Commands.RegisterCommand;
 
@@ -35,23 +34,22 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
             throw new ValidationException($"Role '{role}' is not configured.");
         }
 
-        var user = await _userService.CreateAsync(new UserDto
-        {
-            UserName = request.Username,
-            Email = request.Email,
-            Password = request.Password
-        }, ct);
+        var createdUser = await _userService.CreateAsync(
+            userName: request.Username,
+            email: request.Email,
+            password: request.Password,
+            ct: ct);
 
-        if(user is null)
+        if (createdUser is null)
         {
             throw new ValidationException("User registration failed.");
         }
 
-        var userWithRole = await _userService.AddToRoleAsync(user.Id!, request.Role!, ct);
+        var userWithRole = await _userService.AddToRoleAsync(createdUser.Id!, request.Role!, ct);
         if(userWithRole is null) {
             throw  new ValidationException("Assigning role to user failed.");
         }
 
-        return user.Id;
+        return createdUser.Id;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TaskFlow.Application.Common.Interfaces;
-using TaskFlow.Application.DTOs;
+using TaskFlow.Application.Common.Models;
 using TaskFlow.Infrastructure.Identity;
 
 namespace TaskFlow.Infrastructure.Persistence.Services;
@@ -14,27 +14,27 @@ public class UserManagerService : IUserManagerService
         _userManager = userManager;
     }
 
-    public async Task<UserResponseDto> CreateAsync(UserDto userDto, CancellationToken ct = default)
+    public async Task<CreatedUserResult?> CreateAsync(string userName, string email, string password, CancellationToken ct = default)
     {
         var user = new ApplicationUser
         {
-            UserName = userDto.UserName,
-            Email = userDto.Email
+            UserName = userName,
+            Email = email
         };
-        var result = await _userManager.CreateAsync(user, userDto.Password!);
+        var result = await _userManager.CreateAsync(user, password!);
         if (!result.Succeeded)
         {
             return null;
         }
-        return new UserResponseDto
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            Email = user.Email
-        };
+
+        return new CreatedUserResult(
+            Id: user.Id,
+            UserName: user.UserName!,
+            Email: user.Email!
+        );
     }
 
-    public async Task<UserResponseDto> AddToRoleAsync(string userId, string roleName, CancellationToken ct = default)
+    public async Task<AddToRoleResult?> AddToRoleAsync(string userId, string roleName, CancellationToken ct = default)
     {
         var user = await _userManager.FindByIdAsync(userId!);
         if (user == null)
@@ -46,31 +46,31 @@ public class UserManagerService : IUserManagerService
         {
             return null;
         }
-        return new UserResponseDto
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            Email = user.Email,
-            Role = roleName
-        };
+
+        return new AddToRoleResult(
+            Id: user.Id,
+            UserName: user.UserName!,
+            Email: user.Email!,
+            Role: roleName
+        );
     }
 
-    public async Task<UserResponseDto> FindByNameAsync(string username, CancellationToken ct = default)
+    public async Task<UserSummaryResult> FindByNameAsync(string username, CancellationToken ct = default)
     {
         var user = await _userManager.FindByNameAsync(username);
         if (user is null)
         {
             return null;
         }
-        return new UserResponseDto
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            Email = user.Email
-        };
+
+        return new UserSummaryResult(
+            Id: user.Id,
+            UserName: user.UserName!,
+            Email: user.Email!
+        );
     }
 
-    public async Task<IList<string>> GetRolesAsync(string userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<string>> GetRolesAsync(string userId, CancellationToken ct = default)
     {
         if(userId is null)
         {
@@ -81,6 +81,7 @@ public class UserManagerService : IUserManagerService
         {
             return new List<string>();
         }
-        return await _userManager.GetRolesAsync(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.ToList();
     }
 }

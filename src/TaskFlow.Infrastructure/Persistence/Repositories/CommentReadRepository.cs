@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Models;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure.Persistence.Repositories;
@@ -16,19 +17,21 @@ public sealed class CommentReadRepository : ICommentReadRepository
     {
         return await _db.Comment.SingleOrDefaultAsync(x => x.Id == id, ct);
     }
-    public async Task<IEnumerable<LatestCommentItem>> GetLatestsByTaskIdAsync(
+    public async Task<IReadOnlyList<LatestCommentItem>> GetLatestsByTaskIdAsync(
         Guid taskId,
         int limit,
-        string sortDirection,
-        string sortBy,
+        SortDirection sortDirection,
+        CommentSortBy sortBy,
         CancellationToken ct = default)
     {
-        var query = _db.Comment.AsNoTracking().Where(c => c.TaskItemId == taskId);
+        var query = _db.Comment
+            .AsNoTracking()
+            .Where(c => c.TaskItemId == taskId);
 
-        query = (sortBy.ToLowerInvariant(), sortDirection.ToLowerInvariant()) switch
+        query = (sortBy, sortDirection) switch
         {
-            ("createdat", "asc") => query.OrderBy(c => c.CreatedAt),
-            ("createdat", "desc") => query.OrderByDescending(c => c.CreatedAt),
+            (CommentSortBy.CreatedAt, SortDirection.Asc) => query.OrderBy(c => c.CreatedAt),
+            (CommentSortBy.CreatedAt, SortDirection.Desc) => query.OrderByDescending(c => c.CreatedAt),
             _ => query.OrderByDescending(c => c.CreatedAt)
         };
 
@@ -40,10 +43,11 @@ public sealed class CommentReadRepository : ICommentReadRepository
                 c.CreatedAt,
                 c.UserId,
                 new TaskSummary(
-                    c.TaskItem.Id,
+                    c.TaskItemId,
                     c.TaskItem.Title,
                     c.TaskItem.Description
                 )
-            )).ToListAsync(ct);
+            ))
+            .ToListAsync(ct);
     }
 }

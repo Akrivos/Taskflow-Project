@@ -5,6 +5,8 @@ using TaskFlow.Application.Projects.Commands;
 using TaskFlow.Application.Projects.Queries;
 using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
 using TaskFlow.Api.Controllers.Requests.Projects;
+using TaskFlow.Application.Common.Models;
+using TaskFlow.Application.Projects.Queries.GetProjects;
 
 namespace TaskFlow.Api.Controllers;
 [ApiController]
@@ -16,24 +18,28 @@ public class ProjectsController : ControllerBase
     public ProjectsController(IMediator mediator)
     {
         _mediator = mediator;
-    } 
+    }
 
     [HttpGet]
     public async Task<IActionResult> Get(
         CancellationToken ct,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 20,
-        [FromQuery] string? search = null,
-        [FromQuery] string? sortBy = "name",
-        [FromQuery] string? sortDirection = "asc"
-      ) =>
-        Ok(await _mediator.Send(new GetProjectsQuery(
+        [FromQuery] int? pageNumber,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? search,
+        [FromQuery] ProjectSortBy? sortBy,
+        [FromQuery] SortDirection? sortDirection
+    )
+    {
+        var result = await _mediator.Send(new GetProjectsQuery(
             PageNumber: pageNumber,
             PageSize: pageSize,
             Search: search,
             SortBy: sortBy,
             SortDirection: sortDirection
-         ), ct));
+        ), ct);
+
+        return Ok(result);
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
@@ -83,11 +89,11 @@ public class ProjectsController : ControllerBase
     [HttpGet("with-members")]
     public async Task<IActionResult> GetProjectsWithMembers(
         CancellationToken ct,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 20,
-        [FromQuery] string? search = null,
-        [FromQuery] string? sortBy = "createdAt",
-        [FromQuery] string? sortDirection = "asc"
+        [FromQuery] int? pageNumber,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? search,
+        [FromQuery] ProjectWithMembersSortBy? sortBy,
+        [FromQuery] SortDirection? sortDirection
      )
     {
         var projects = await _mediator.Send(new GetProjectsWithMembersQuery(

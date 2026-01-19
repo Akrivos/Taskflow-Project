@@ -22,8 +22,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
         {
             throw new UnauthorizedException("Invalid username or password.");
         }
-        
-        return authResponse;
+
+        return new AuthResponseDto
+        {
+            AccessToken = authResponse.AccessToken,
+            RefreshToken = authResponse.RefreshToken,
+            Roles = authResponse.Roles.ToList()
+        };
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Models;
 using TaskFlow.Application.Projects.Queries.GetProjects;
 using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
 using TaskFlow.Domain.Entities;
@@ -23,42 +24,26 @@ public sealed class ProjectReadRepository : IProjectReadRepository
         int pageNumber,
         int pageSize,
         string? search,
-        string? sortBy,
-        string? sortDirection,
+        ProjectSortBy? sortBy,
+        SortDirection? sortDirection,
         CancellationToken ct = default)
     {
-        if (pageNumber < 1) pageNumber = 1;
-
-        if (pageSize < 1) pageSize = 10;
-        if (pageSize > 100) pageSize = 100;
-
         var query = _db.Projects.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
-
             query = query.Where(p =>
                 p.Name.Contains(term) ||
                 (p.Description != null && p.Description.Contains(term)));
         }
 
-        var sortByNorm = string.IsNullOrWhiteSpace(sortBy)
-            ? "name"
-            : sortBy.Trim().ToLowerInvariant();
-
-        var sortDirNorm = string.IsNullOrWhiteSpace(sortDirection)
-            ? "asc"
-            : sortDirection.Trim().ToLowerInvariant();
-
-        query = (sortByNorm.ToLowerInvariant(), sortDirNorm.ToLowerInvariant()) switch
+        query = (sortBy, sortDirection) switch
         {
-            ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
-            ("createdat", _) => query.OrderBy(p => p.CreatedAt),
+            (ProjectSortBy.CreatedAt, SortDirection.Desc) => query.OrderByDescending(p => p.CreatedAt),
+            (ProjectSortBy.CreatedAt, _) => query.OrderBy(p => p.CreatedAt),
 
-            ("name", "desc") => query.OrderByDescending(p => p.Name),
-            ("name", _) => query.OrderBy(p => p.Name),
-
+            (ProjectSortBy.Name, SortDirection.Desc) => query.OrderByDescending(p => p.Name),
             _ => query.OrderBy(p => p.Name)
         };
 
@@ -67,64 +52,41 @@ public sealed class ProjectReadRepository : IProjectReadRepository
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(p => new ProjectListItem(
-                p.Id,
-                p.Name,
-                p.Description
-            ))
+            .Select(p => new ProjectListItem(p.Id, p.Name, p.Description))
             .ToListAsync(ct);
 
-        return new PagedResult<ProjectListItem>(
-            items,
-            pageNumber,
-            pageSize,
-            totalCount);
+        return new PagedResult<ProjectListItem>(items, pageNumber, pageSize, totalCount);
     }
 
     public async Task<PagedResult<ProjectWithMembersItem>> GetProjectsWithMembersAsync(
         int pageNumber,
         int pageSize,
         string? search,
-        string? sortBy,
-        string? sortDirection,
+        ProjectWithMembersSortBy? sortBy,
+        SortDirection? sortDirection,
         CancellationToken ct = default)
     {
-        if (pageNumber < 1) pageNumber = 1;
-
-        if (pageSize < 1) pageSize = 10;
-        if (pageSize > 100) pageSize = 100;
-
         var query = _db.Projects.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
-
             query = query.Where(p =>
                 p.Name.Contains(term) ||
                 (p.Description != null && p.Description.Contains(term)));
         }
 
-        var sortByNorm = string.IsNullOrWhiteSpace(sortBy)
-            ? "name"
-            : sortBy.Trim().ToLowerInvariant();
-
-        var sortDirNorm = string.IsNullOrWhiteSpace(sortDirection)
-            ? "asc"
-            : sortDirection.Trim().ToLowerInvariant();
-
-        query = (sortByNorm, sortDirNorm) switch
+        query = (sortBy, sortDirection) switch
         {
-            ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
-            ("createdat", _) => query.OrderBy(p => p.CreatedAt),
-
-            ("name", "desc") => query.OrderByDescending(p => p.Name),
-            _ => query.OrderBy(p => p.Name)
+            (ProjectWithMembersSortBy.CreatedAt, SortDirection.Desc) => query.OrderByDescending(p => p.CreatedAt),
+            (ProjectWithMembersSortBy.CreatedAt, _) => query.OrderBy(p => p.CreatedAt),
+            _ => query.OrderByDescending(p => p.CreatedAt)
         };
 
         var totalCount = await query.CountAsync(ct);
 
-        var projects = await query.Skip((pageNumber - 1) * pageSize)
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(p => new ProjectWithMembersItem(
                 p.Id,
@@ -142,12 +104,9 @@ public sealed class ProjectReadRepository : IProjectReadRepository
                     m.UserId,
                     m.Role
                 )).ToList()
-            )).ToListAsync(ct);
+            ))
+            .ToListAsync(ct);
 
-        return new PagedResult<ProjectWithMembersItem>(
-            projects,
-            pageNumber,
-            pageSize,
-            totalCount);
+        return new PagedResult<ProjectWithMembersItem>(items, pageNumber, pageSize, totalCount);
     }
 }

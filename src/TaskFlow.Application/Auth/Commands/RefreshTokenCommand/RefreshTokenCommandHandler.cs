@@ -20,6 +20,11 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
             throw new UnauthorizedException("Invalid or expired refresh token.");
         }
 
-        return refreshToken;
+        return new AuthResponseDto
+        {
+            AccessToken = refreshToken.AccessToken,
+            RefreshToken = refreshToken.RefreshToken,
+            Roles = refreshToken.Roles.ToList()
+        };
     }
 }

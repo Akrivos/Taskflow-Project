@@ -1,10 +1,12 @@
 using MediatR;
+using TaskFlow.Application.Common.Models;
 using TaskFlow.Application.DTOs;
+using TaskFlow.Application.Projects.Queries.GetProjects;
 
 public sealed record GetProjectsQuery(
-    int PageNumber = 1,
-    int PageSize = 20,
-    string? Search = null,
-    string? SortBy = "name",
-    string? SortDirection = "asc"
+    int? PageNumber,
+    int? PageSize,
+    string? Search,
+    ProjectSortBy? SortBy,
+    SortDirection? SortDirection
 ) : IRequest<PagedResult<ProjectResponseDto>>;

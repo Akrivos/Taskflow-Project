@@ -1,4 +1,4 @@
-﻿using TaskFlow.Application.DTOs;
+﻿using TaskFlow.Application.Common.Models;
 using TaskFlow.Application.Projects.Queries.GetProjects;
 using TaskFlow.Application.Projects.Queries.GetProjectsWithMembers;
 using TaskFlow.Domain.Entities;
@@ -12,16 +12,16 @@ namespace TaskFlow.Application.Common.Interfaces
             int pageNumber,
             int pageSize,
             string? search,
-            string? sortBy,
-            string? sortDirection,
+            ProjectSortBy? sortBy,
+            SortDirection? sortDirection,
             CancellationToken ct = default);
 
         Task<PagedResult<ProjectWithMembersItem>> GetProjectsWithMembersAsync(
             int pageNumber,
             int pageSize,
             string? search,
-            string? sortBy,
-            string? sortDirection,
+            ProjectWithMembersSortBy? sortBy,
+            SortDirection? sortDirection,
             CancellationToken ct = default);
     }
 }
