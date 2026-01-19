@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using TaskFlow.Application.Common.Models;
 
 namespace TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 
 public sealed record GetLatestsByTaskIdQuery(
     Guid TaskId,
-    int? Limit = 10,
-    string? SortDirection = "desc",
-    string? SortBy = "createdAt"
-) : IRequest<IEnumerable<LatestCommentItem>>;
+    int? Limit,
+    SortDirection? SortDirection,
+    CommentSortBy? SortBy
+) : IRequest<IReadOnlyList<LatestCommentItem>>;

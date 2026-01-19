@@ -8,8 +8,8 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 {
     private readonly Stopwatch _timer;
     private ICurrentUser _user;
-    private ILogger<PerformanceBehaviour<TRequest, TResponse>> _logger;
-    public PerformanceBehaviour(ICurrentUser user, ILogger<PerformanceBehaviour<TRequest, TResponse>> logger)
+    private ILogger<TRequest> _logger;
+    public PerformanceBehaviour(ICurrentUser user, ILogger<TRequest> logger)
     {
         _timer = new Stopwatch();
         _user = user;

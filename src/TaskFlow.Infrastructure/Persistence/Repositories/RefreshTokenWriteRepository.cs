@@ -13,20 +13,9 @@ public class RefreshTokenWriteRepository : IRefreshTokenWriteRepository
         _db = db;
     }
 
-    public async Task<RefreshToken> CreateAsync(RefreshTokenBodyDto refreshToken, CancellationToken ct = default)
+    public async Task AddAsync(RefreshToken refreshToken, CancellationToken ct = default)
     {
-        var token = new RefreshToken
-        {
-            UserId = refreshToken.UserId,
-            Token = refreshToken.Token,
-            CreatedAt = refreshToken.CreatedAt,
-            ExpiresAt = refreshToken.ExpiresAt,
-            RevokedAt = refreshToken.RevokedAt,
-            ReplacedByToken = refreshToken.ReplacedByToken
-        };
-
-        await _db.RefreshTokens.AddAsync(token, ct);
-        return token;
+        await _db.RefreshTokens.AddAsync(refreshToken, ct);
     }
 
     public Task SaveChangesAsync(CancellationToken ct = default)

@@ -6,6 +6,7 @@ using TaskFlow.Api.Controllers.Requests.Comment;
 using TaskFlow.Application.Comments.Commands.CreateComment;
 using TaskFlow.Application.Comments.Commands.DeleteComment;
 using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
+using TaskFlow.Application.Common.Models;
 
 namespace TaskFlow.Api.Controllers;
 
@@ -38,17 +39,21 @@ public class CommentsController : ControllerBase
     public async Task<IActionResult> GetLatestsByTaskId(
         [FromRoute] Guid taskId,
         CancellationToken ct,
-        [FromQuery] int? limit = 10, 
-        [FromQuery] string? sortDirection = "desc",
-        [FromQuery] string? sortBy = "createdAt"
-       )
+        [FromQuery] int? limit,
+        [FromQuery] SortDirection? sortDirection,
+        [FromQuery] CommentSortBy? sortBy
+    )
     {
-        var comments = await _mediator.Send(new GetLatestsByTaskIdQuery(
-            TaskId: taskId,
-            Limit: limit,
-            SortDirection: sortDirection,
-            SortBy: sortBy
-         ), ct);
+        var comments = await _mediator.Send(
+            new GetLatestsByTaskIdQuery(
+                TaskId: taskId,
+                Limit: limit,
+                SortDirection: sortDirection,
+                SortBy: sortBy
+            ),
+            ct
+        );
+
         return Ok(comments);
     }
 }

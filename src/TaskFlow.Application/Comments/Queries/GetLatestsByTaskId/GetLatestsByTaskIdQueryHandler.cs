@@ -1,26 +1,33 @@
 ﻿using MediatR;
-using TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Models;
 
-public class GetLatestsByTaskIdQueryHandler : IRequestHandler<GetLatestsByTaskIdQuery, IEnumerable<LatestCommentItem>>
+namespace TaskFlow.Application.Comments.Queries.GetLatestsByTaskId;
+
+public sealed class GetLatestsByTaskIdQueryHandler
+    : IRequestHandler<GetLatestsByTaskIdQuery, IReadOnlyList<LatestCommentItem>>
 {
-    protected readonly ICommentReadRepository _commentReadRepo;
+    private readonly ICommentReadRepository _commentReadRepo;
+
     public GetLatestsByTaskIdQueryHandler(ICommentReadRepository commentReadRepo)
     {
         _commentReadRepo = commentReadRepo;
     }
-    public async Task<IEnumerable<LatestCommentItem>> Handle(
+
+    public Task<IReadOnlyList<LatestCommentItem>> Handle(
         GetLatestsByTaskIdQuery request,
-        CancellationToken ct
-        )
+        CancellationToken ct)
     {
-        var comments = await _commentReadRepo.GetLatestsByTaskIdAsync(
+        var limit = request.Limit ?? 10;
+        var sortDirection = request.SortDirection ?? SortDirection.Desc;
+        var sortBy = request.SortBy ?? CommentSortBy.CreatedAt;
+
+        return _commentReadRepo.GetLatestsByTaskIdAsync(
             request.TaskId,
-            request.Limit ?? 10,
-            request.SortDirection ?? "desc",
-            request.SortBy ?? "createdAt",
+            limit,
+            sortDirection,
+            sortBy,
             ct
         );
-        return comments;
     }
 }

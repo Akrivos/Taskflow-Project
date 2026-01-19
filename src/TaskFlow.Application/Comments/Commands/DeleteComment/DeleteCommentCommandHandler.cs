@@ -26,7 +26,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
             throw new ForbiddenException("You dont have access!");
         }
         var comment = await _commentReadRepo.GetByIdAsync(request.Id, ct);
-        if (comment == null)
+        if (comment is null)
         {
             throw new NotFoundException("Comment", request.Id);
         }
