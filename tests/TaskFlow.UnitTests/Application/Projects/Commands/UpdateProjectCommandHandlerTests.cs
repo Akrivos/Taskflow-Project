@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaskFlow.Application.Common.Exceptions;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Common.Messages;
 using TaskFlow.Application.Projects.Commands;
 using TaskFlow.Domain.Entities;
 using Xunit;
@@ -27,7 +28,7 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
         }
 
         [Fact]
-        public async Task Handler_Should_Be_Update_Project_When_User_Is_Admin()
+        public async Task Handle_WhenUserIsAuthorized_ReturnsUpdatedProject()
         {
             var cmd = new UpdateProjectCommand(Guid.NewGuid(), "Updated Project", "Updated Description");
 
@@ -44,10 +45,17 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
             var result = await handler.Handle(cmd, CancellationToken.None);
             Assert.Equal(cmd.Id, result);
             _projectWriteRepoMock.Verify(p => p.SaveChangesAsync(CancellationToken.None), Times.Once);
+
+            _queueServiceMock.Verify(
+            q => q.PublishAsync(
+                Topics.ProjectUpdated,
+                It.Is<string>(payload => payload.Contains(cmd.Name)),
+                CancellationToken.None),
+            Times.Once);
         }
 
         [Fact]
-        public async Task Handler_Should_Throw_Forbidden_When_User_Role_Is_Not_Admin_Or_ProjectManager()
+        public async Task Handle_WhenUserIsNotAuthorized_ThrowsForbiddenException()
         {
            var cmd = new UpdateProjectCommand(Guid.NewGuid(), "Updated Project", "Updated Description");
            var handler = CreateHandler();
@@ -55,6 +63,21 @@ namespace TaskFlow.UnitTests.Application.Projects.Commands
            _currentUserMock.Setup(cu => cu.IsInRole("Admin")).Returns(false);
            _currentUserMock.Setup(cu => cu.IsInRole("ProjectManager")).Returns(false);
             await Assert.ThrowsAsync<ForbiddenException>(() => handler.Handle(cmd, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_WhenProjectDoesNotExists_ThrowsNotFoundException()
+        {
+            var cmd = new UpdateProjectCommand(Guid.NewGuid(), "Updated Project", "Updated Description");
+            var handler = CreateHandler();
+            _currentUserMock.Setup(cu => cu.UserId).Returns(Guid.NewGuid().ToString());
+            _currentUserMock.Setup(cu => cu.IsInRole("Admin")).Returns(true);
+            _currentUserMock.Setup(cu => cu.IsInRole("ProjectManager")).Returns(false);
+            _projectReadRepoMock.Setup(p => p.GetByIdAsync(It.Is<Guid>(arg => arg == cmd.Id), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Project?)null);
+            await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(cmd, CancellationToken.None));
+
+            _projectWriteRepoMock.Verify(p => p.SaveChangesAsync(CancellationToken.None), Times.Never);
         }
     }
 }

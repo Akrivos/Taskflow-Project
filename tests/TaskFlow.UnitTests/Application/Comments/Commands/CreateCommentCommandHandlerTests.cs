@@ -22,7 +22,7 @@ namespace TaskFlow.UnitTests.Application.Comments.Commands
             _mockTaskReadRepository.Object);
 
         [Fact]
-        public async Task Handle_Should_Create_Comment_When_User_Is_Authenticated()
+        public async Task Handle_WhenUserIsAuthorized_CreatesComment()
         {
             var cmd = new CreateCommentCommand(Guid.NewGuid(), "This is a test comment.");
             _mockCurrentUser.Setup(cu => cu.UserId).Returns("test-user-id");
@@ -43,7 +43,7 @@ namespace TaskFlow.UnitTests.Application.Comments.Commands
         }
 
         [Fact]
-        public async Task Handle_Should_Throw_NotFoundException_When_TaskItem_Does_Not_Exist()
+        public async Task Handle_WhenTaskItemDoesNotExists_ThrowsNotFoundException()
         {
             var cmd = new CreateCommentCommand(Guid.NewGuid(), "This is a test comment.");
             _mockCurrentUser.Setup(cu => cu.UserId).Returns("test-user-id");
@@ -51,6 +51,16 @@ namespace TaskFlow.UnitTests.Application.Comments.Commands
                 .ReturnsAsync((TaskItem?)null);
             var handler = CreateHandler();
             await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(cmd, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_WhenUserIsNotAuthenticated_ThrowsUnauthorizedException()
+        {
+            var cmd = new CreateCommentCommand(Guid.NewGuid(), "This is a test comment.");
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns((string)null);
+            var handler = CreateHandler();
+            await Assert.ThrowsAsync<UnauthorizedException>(() =>
                 handler.Handle(cmd, CancellationToken.None));
         }
     }

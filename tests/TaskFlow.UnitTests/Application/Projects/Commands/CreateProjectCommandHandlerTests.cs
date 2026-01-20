@@ -22,7 +22,7 @@ public class CreateProjectCommandHandlerTests
         => new(_currentUserMock.Object, _projectWriteRepoMock.Object, _queueServiceMock.Object);
 
     [Fact]
-    public async Task Handle_Should_Create_Project_When_User_Is_Admin()
+    public async Task Handle_WhenUserIsAdmin_CreatesProject()
     {
         var cmd = new CreateProjectCommand("Test project", "Some description");
         var ct = CancellationToken.None;
@@ -54,7 +54,7 @@ public class CreateProjectCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Should_Throw_Forbidden_When_User_Has_No_Role()
+    public async Task Handle_WhenUserIsNotAuthorized_ThrowsForbiddenException()
     {
         var cmd = new CreateProjectCommand("Test project", "Some description");
         var ct = CancellationToken.None;
