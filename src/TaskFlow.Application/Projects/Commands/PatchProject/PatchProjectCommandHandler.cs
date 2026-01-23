@@ -42,7 +42,7 @@ public class PatchProjectCommandHandler : IRequestHandler<PatchProjectCommand, G
         project.PartialUpdate(request.Name, request.Description);
 
         await _projectWriteRepo.SaveChangesAsync(ct);
-        await _queue.PublishAsync(Topics.ProjectPartialUpdate, JsonSerializer.Serialize(new { project.Id, project.Name, project.Description }), ct);
+        await _queue.PublishAsync(Topics.ProjectPartialUpdated, JsonSerializer.Serialize(new { project.Id, project.Name, project.Description }), ct);
         return project.Id;
     }
 }

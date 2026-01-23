@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -21,7 +20,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var userId = Context.Request.Headers["X-Test-User"].FirstOrDefault() ?? "test-user-id";
-        var userName = Context.Request.Headers["X-Test-Name"].FirstOrDefault() ?? "test-user";
+        var userName = Context.Request.Headers["X-Test-UserName"].FirstOrDefault() ?? "test-user";
         var role = Context.Request.Headers["X-Test-Role"].FirstOrDefault() ?? "Admin";
 
         var claims = new[]
