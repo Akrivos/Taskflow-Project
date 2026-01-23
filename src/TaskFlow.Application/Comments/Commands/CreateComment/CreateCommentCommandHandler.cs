@@ -41,7 +41,6 @@ public class CreateCommentCommandHandler: IRequestHandler<CreateCommentCommand, 
         comment.Validate();
         await _commentWriteRepo.AddAsync(comment, ct);
         await _commentWriteRepo.SaveChangesAsync(ct);
-        Console.WriteLine($"Comment created with ID: {comment.Id}");
         return comment.Id;
     }
 }
